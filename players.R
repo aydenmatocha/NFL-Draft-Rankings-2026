@@ -1,6 +1,8 @@
 library(httr)
 library(jsonlite)
 
+# Get players from the PFF big board
+
 url <- "https://www.pff.com/api/college/big_board?season=2026&version=3"
 
 res <- GET(url, add_headers(
