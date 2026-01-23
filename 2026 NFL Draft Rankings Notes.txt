@@ -1,0 +1,99 @@
+2026 NFL Draft Rankings
+
+- Read data instead of manually writing
+- Make it dynamic
+- Scrape from PFF big board, get the name, team, position, and rank
+- class="g-card__content g-py-2"
+- Use chatgpt method to activate slim button, which then shows the full big board
+- name, position, college, pff_rank
+- "players"[
+
+QB
+- pass grade (pff) [10]
+- nfl passer rating [10]
+- turnover worthy % [10]
+- big time throw % [10]
+- mean epa per dropback [10]
+passing_summary.csv: pass grade, passer rating, tw%, btt%
+cfbfastr: mean epa/dropback
+
+RB
+- rush grade [10]
+- mean epa per rush [10]
+- yards after contact per att [10]
+- yprr [5]
+- receiving grade [5]
+- fumble % [5]
+- pass block grade [5]
+rushing_summary.csv: rush grade, yac/a, fum/att (fum%)
+receiving_summary.csv: yprr, receiving grade, pb grade
+cfbfastr: mean epa/rush
+
+WR
+- receiving grade [10]
+- yprr [10]
+- mean epa per target [10]
+- drop % [10]
+- contested catch % [10]
+receiving_summary.csv: rec grade, yprr, drop%, ctc%
+cfbfastr: epa/target
+
+TE
+- receiving grade [10]
+- run block grade [10]
+- yprr [10]
+- drop %
+- contested catch %
+- epa/target?
+- pb grade?
+receiving_summary.csv: rec grade, yprr, drop%, ctc%
+
+OT/IOL
+- Pass Blocking Grade [10]
+- Run Blocking Grade [10]
+- Zone Grade [10]
+- Gap Grade [10]
+- Pass Blocking Efficiency [10]
+offense_blocking.csv: pb grade, rb grade, pbe
+offense_run_blocking.csv: zone grade, gap grade
+
+ED/DL
+- Pass Rush Grade [10]
+- Run Defense Grade [10]
+- Pass Rush Win Rate [10]
+- Run Stop Rate [10]
+- prp [10?]
+maybe add missed tackle %?
+pass_rush_summary.csv: pr grade, pr win%, prp
+run_defense_summary.csv: rdef grade, run stop%
+
+LB
+- Pass Coverage Grade [10]
+- Run Defense Grade [10]
+- Missed Tackle % [10]
+- Pass Rush Grade [10]
+- Run Stop Rate [5]
+- Passer Rating Allowed [5]
+- AVG Depth of Run Tackle? X
+defense_coverage_sumnmary: pass cov grade, passer rtg
+run_defense_umnmary: run def grade, run stop%
+pass_rush_summary: pr grade
+defense_summary: miss% AND ALSO rdef grade, prsh grade, cov grade, pass rtg
+
+CB
+- Man Grade [10]
+- Zone Grade [10]
+- Passer Rating Allowed [10]
+- Missed Tackle % [10]
+- Completion Percentage [10]
+defense_summary: pass rtg, miss%, comp%
+defense_coverage_scheme: man, zone
+
+S
+- Man Grade [10]
+- Zone Grade [10]
+- Run Defense Grade [10]
+- Passer Rating Allowed [10]
+- Missed Tackle % [10]
+defense_summary: run d grade, passer rtg, miss%
+defense_coverage_scheme: man, zone

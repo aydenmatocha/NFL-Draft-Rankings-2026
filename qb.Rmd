@@ -1,0 +1,63 @@
+---
+title: "2026 NFL Draft QB Grades"
+author: "Ayden Matocha"
+date: "`r format(Sys.time(), '%A, %B %d, %Y @ %I:%M %p')`"
+output: 
+  html_document:
+    toc: TRUE
+---
+```{r}
+# You can install using the pacman package using the following code:
+#if (!requireNamespace('remotes', quietly = TRUE)){
+#  install.packages('remotes', repos = "https://cloud.r-project.org")
+#}
+#remotes::install_github("sportsdataverse/cfbfastR")
+
+# Might need to add API key
+```
+
+# Packages Needed
+```{r}
+library(tidyverse)
+library(cfbfastR)
+library(DT)
+```
+
+# Load Play-by-Play Data
+```{r}
+pbp_2025 <- load_cfb_pbp(seasons = 2025)
+```
+
+
+# Load QB Players
+```{r}
+qbs <- read.csv("data/players.csv") %>% filter(position == "QB")
+```
+
+# Load Necessary CSV Files
+```{r}
+passing <- read.csv("data/qb/passing_summary.csv") %>% select(player, grades_pass, qb_rating, twp_rate, btt_rate)
+```
+
+# Combine Datasets and Pull Names
+```{r}
+qb_values <- qbs %>% left_join(passing, by = c("name" = "player")) %>% drop_na()
+qb_names <- qb_values %>% pull(name)
+```
+
+# Calculate Mean EPA and Combine
+```{r}
+passer_epa <- pbp_2025 %>%
+  filter(pass == 1) %>%
+  group_by(passer_player_name) %>%
+  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %>%
+  filter(!is.na(passer_player_name), passer_player_name %in% qb_names) %>%
+  rename(name = passer_player_name) %>%
+  arrange(-mean_epa)
+
+qb_values <- left_join(qb_values, passer_epa, by = "name")
+```
+
+
+
+
