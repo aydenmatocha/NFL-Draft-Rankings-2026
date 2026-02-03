@@ -15,6 +15,7 @@ players <- data$players
 
 df <- data.frame(
   name = players$name,
+  id = players$id,
   position = players$position,
   team = players$college,
   rank = players$pff_rank

@@ -56,8 +56,40 @@ passer_epa <- pbp_2025 %>%
   arrange(-mean_epa)
 
 qb_values <- left_join(qb_values, passer_epa, by = "name")
+qb_values
 ```
 
+# Get Mean Values (for testing)
+```{r}
+mean(qb_values$grades_pass)
+mean(qb_values$qb_rating)
+mean(qb_values$twp_rate)
+mean(qb_values$btt_rate)
+mean(qb_values$mean_epa)
+```
 
+# Create Rating Function
+```{r}
+get_qb_ratings <- function(input_df) {
+  input_df <- input_df %>% mutate(
+    grades_pass = round(pmax(pmin((grades_pass-70) / 2, 10), 0), 2), # 70-90, mean 80
+    qb_rating = round(pmax(pmin((qb_rating-90) / 3, 10), 0), 2), # 90-120, mean 105
+    twp_rate = round(pmax(pmin(((100-twp_rate)-96.5) * 5, 10), 0), 2), # 3.5-1.5, mean 2.5
+    btt_rate = round(pmax(pmin((btt_rate-3) * 3.33, 10), 0), 2), # 3-6, mean 4.5
+    mean_epa = round(pmax(pmin((mean_epa) * 33.33, 10), 0), 2), # 0-.3, mean .15
+  )
+  return(input_df)
+}
+```
+
+# Create Final Dataset
+```{r}
+qb_ratings <- get_qb_ratings(qb_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+
+qb_ratings
+```
 
 
