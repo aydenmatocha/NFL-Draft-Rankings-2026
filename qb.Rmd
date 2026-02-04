@@ -25,7 +25,7 @@ library(DT)
 
 # Load Play-by-Play Data
 ```{r}
-pbp_2025 <- load_cfb_pbp(seasons = 2025)
+pbp_2025 <- load_cfb_pbp(seasons = 2025) # mean epa/dropback
 ```
 
 
@@ -36,7 +36,7 @@ qbs <- read.csv("data/players.csv") %>% filter(position == "QB")
 
 # Load Necessary CSV Files
 ```{r}
-passing <- read.csv("data/qb/passing_summary.csv") %>% select(player, grades_pass, qb_rating, twp_rate, btt_rate)
+passing <- read.csv("data/qb/passing_summary.csv") %>% select(player, grades_pass, qb_rating, twp_rate, btt_rate) # pass grade, qb rating, tw%, btt%
 ```
 
 # Combine Datasets and Pull Names
