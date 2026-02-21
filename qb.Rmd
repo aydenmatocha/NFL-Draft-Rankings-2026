@@ -89,7 +89,7 @@ qb_ratings <- get_qb_ratings(qb_values) %>%
   arrange(-total) %>%
   mutate(pos_rank_aft = row_number())
 
-qb_ratings
+datatable(qb_ratings)
 ```
 
 

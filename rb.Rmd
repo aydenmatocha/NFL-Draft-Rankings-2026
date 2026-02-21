@@ -92,5 +92,5 @@ rb_ratings <- get_rb_ratings(rb_values) %>%
   arrange(-total) %>%
   mutate(pos_rank_aft = row_number())
 
-rb_ratings
+datatable(rb_ratings)
 ```
