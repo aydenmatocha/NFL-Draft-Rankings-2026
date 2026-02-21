@@ -1,0 +1,94 @@
+---
+title: "2026 NFL Draft TE Grades"
+author: "Ayden Matocha"
+date: "`r format(Sys.time(), '%A, %B %d, %Y @ %I:%M %p')`"
+output: 
+  html_document:
+    toc: TRUE
+---
+
+# Packages Needed
+```{r}
+library(tidyverse)
+library(cfbfastR)
+library(DT)
+```
+
+# Load Play-by-Play Data
+```{r}
+pbp_2025 <- load_cfb_pbp(seasons = 2025) # mean epa/target
+```
+
+# Load WR Players
+```{r}
+tes <- read.csv("data/players.csv") %>% filter(position == "TE")
+```
+
+# Load Necessary CSV Files
+```{r}
+receiving <- read.csv("data/receiving_summary.csv") %>% select(player_id, grades_pass_route, yprr, drop_rate, contested_catch_rate) # rec grade, yprr, drop%, contested catch %
+blocking <- read.csv("data/offense_blocking.csv") %>% select(player_id, grades_run_block, grades_pass_block) # rb grade, pb grade
+```
+
+# Combine Datasets and Pull Names
+```{r}
+te_values <- tes %>% left_join(receiving, by = c("id" = "player_id")) %>% drop_na()
+te_values <- te_values %>% left_join(blocking, by = c("id" = "player_id")) %>% drop_na()
+te_values <- te_values %>% 
+  rename(rec_grade = grades_pass_route, cc_rate = contested_catch_rate, pb_grade = grades_pass_block, rb_grade = grades_run_block)
+te_names <- te_values %>% pull(name)
+te_names
+head(te_values)
+```
+
+# Calculate Mean EPA and Combine
+```{r}
+receiver_epa <- pbp_2025 %>%
+  filter(pass == 1) %>%
+  group_by(receiver_player_name) %>%
+  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %>%
+  filter(!is.na(receiver_player_name), receiver_player_name %in% te_names) %>%
+  rename(name = receiver_player_name) %>%
+  arrange(-mean_epa)
+
+te_values <- left_join(te_values, receiver_epa, by = "name") %>% select(-id)
+te_values
+```
+
+# Get Mean Values (for testing)
+```{r}
+mean(te_values$rec_grade)
+mean(te_values$yprr)
+mean(te_values$drop_rate)
+mean(te_values$cc_rate)
+mean(te_values$rb_grade)
+mean(te_values$pb_grade)
+mean(te_values$mean_epa)
+```
+
+# Create Rating Function
+```{r}
+get_te_ratings <- function(input_df) {
+  df_te_copy <- input_df %>% mutate(
+    rec_grade = round(pmax(pmin((rec_grade-50) / 4, 10), 0), 2), # 50-90, mean 70
+    yprr = round(pmax(pmin((yprr-1) * 6.67, 10), 0), 2), # 1-2.5, mean 1.75
+    rb_grade = round(pmax(pmin((rb_grade-40) / 3, 10), 0), 2), # 40-70, mean 55
+    pb_grade = round(pmax(pmin((pb_grade-55) / 4, 5), 0), 2), # 55-75, mean 65, worth 5
+    drop_rate = round(pmax(pmin(((100-drop_rate)-90) / 1.5, 5), 0), 2), # 10-2.5, mean 6.25, worth 5
+    cc_rate = round(pmax(pmin((cc_rate-35) / 6, 5), 0), 2), # 35-65, mean 50, worth 5
+    mean_epa = round(pmax(pmin((mean_epa) * 5, 5), 0), 2), # 0-1, mean .5, worth 5
+  )
+  return(df_te_copy)
+}
+```
+
+# Create Final Dataset
+```{r}
+te_ratings <- get_te_ratings(te_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+
+datatable(te_ratings)
+```
+
