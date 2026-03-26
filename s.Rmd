@@ -50,7 +50,7 @@ get_s_ratings <- function(input_df) {
     man_grade = round(pmax(pmin((man_grade-55) / 3, 10), 0), 2),  # 55-85, mean 70
     zone_grade = round(pmax(pmin((zone_grade-55) / 3, 10), 0), 2), # 55-85, mean 70
     rdef_grade = round(pmax(pmin((rdef_grade-60) / 2.5, 10), 0), 2), # 60-85, mean 72.5
-    miss_p = round(pmax(pmin(((100-miss_p)-80)/1.4, 10), 0), 2), # 20-6, mean 12.5
+    miss_p = round(pmax(pmin(((100-miss_p)-82), 10), 0), 2), # 18-8, mean 13
     pass_rtg = round(pmax(pmin(((200-pass_rtg)-80) / 6, 10), 0), 2), # 120-60, mean 85
   )
   return(df_s_copy)
