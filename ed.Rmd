@@ -1,0 +1,73 @@
+---
+title: "2026 NFL Draft ED Grades"
+author: "Ayden Matocha"
+date: "`r format(Sys.time(), '%A, %B %d, %Y @ %I:%M %p')`"
+output: 
+  html_document:
+    toc: TRUE
+---
+
+# Packages Needed
+```{r}
+library(tidyverse)
+library(DT)
+```
+
+# Load ED Players
+```{r}
+eds <- read.csv("data/players.csv") %>% filter(position == "ED")
+```
+
+# Load Necessary CSV Files
+```{r}
+defense <- read.csv("data/defense_summary.csv") %>% select(player_id, missed_tackle_rate, grades_pass_rush_defense, grades_run_defense) # miss %, prsh_grade, rdef_grade
+prsh_defense <- read.csv("data/pass_rush_summary.csv") %>% select(player_id, pass_rush_win_rate, prp) # prsh_win_p, prp
+run_defense <- read.csv("data/run_defense_summary.csv") %>% select(player_id, stop_percent) # run_stop_p
+```
+
+# Combine Datasets
+```{r}
+ed_values <- eds %>% left_join(defense, by = c("id" = "player_id")) %>% drop_na()
+ed_values <- ed_values %>% left_join(prsh_defense, by = c("id" = "player_id")) %>% drop_na()
+ed_values <- ed_values %>% left_join(run_defense, by = c("id" = "player_id")) %>% drop_na()
+ed_values <- ed_values %>% 
+  rename(miss_p = missed_tackle_rate, rdef_grade = grades_run_defense, prsh_grade = grades_pass_rush_defense, prsh_win_p = pass_rush_win_rate, run_stop_p = stop_percent) %>%
+  select(-id)
+head(ed_values)
+```
+
+# Get Mean Values (for testing)
+```{r}
+mean(ed_values$miss_p)
+mean(ed_values$rdef_grade)
+mean(ed_values$prsh_grade)
+mean(ed_values$prsh_win_p)
+mean(ed_values$prp)
+mean(ed_values$run_stop_p)
+```
+
+# Create Rating Function
+```{r}
+get_ed_ratings <- function(input_df) {
+  df_ed_copy <- input_df %>% mutate(
+    prsh_grade = round(pmax(pmin((prsh_grade-70) / 2, 10), 0), 2),  # 70-90, mean 80
+    rdef_grade = round(pmax(pmin((rdef_grade-65) / 2, 10), 0), 2), # 65-85, mean 75
+    prsh_win_p = round(pmax(pmin((prsh_win_p-10), 10), 0), 2), # 10-20, mean 15
+    run_stop_p = round(pmax(pmin((run_stop_p-4)*2, 10), 0), 2), # 4-9, mean 6.5
+    prp = round(pmax(pmin((prp-6)/1.2, 5), 0), 2), # 6-12, mean 9, worth 5
+    miss_p = round(pmax(pmin(((100-miss_p)-75) / 3, 5), 0), 2), # 25-10, mean 17.5, worth 5
+  )
+  
+  return(df_ed_copy)
+}
+```
+
+# Create Final Dataset
+```{r}
+ed_ratings <- get_ed_ratings(ed_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+
+datatable(ed_ratings)
+```
