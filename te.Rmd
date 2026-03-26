@@ -19,7 +19,7 @@ library(DT)
 pbp_2025 <- load_cfb_pbp(seasons = 2025) # mean epa/target
 ```
 
-# Load WR Players
+# Load TE Players
 ```{r}
 tes <- read.csv("data/players.csv") %>% filter(position == "TE")
 ```

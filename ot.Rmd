@@ -13,7 +13,7 @@ library(tidyverse)
 library(DT)
 ```
 
-# Load WR Players
+# Load OT Players
 ```{r}
 ots <- read.csv("data/players.csv") %>% filter(position == "T")
 ```
@@ -42,7 +42,7 @@ mean(ot_values$pbe)
 mean(ot_values$zone_grade)
 mean(ot_values$gap_grade)
 ```
-
+# Create Rating Function
 ```{r}
 get_ot_ratings <- function(input_df) {
   df_ot_copy <- input_df %>% mutate(

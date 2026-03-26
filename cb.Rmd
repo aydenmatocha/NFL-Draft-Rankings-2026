@@ -1,0 +1,69 @@
+---
+title: "2026 NFL Draft CB Grades"
+author: "Ayden Matocha"
+date: "`r format(Sys.time(), '%A, %B %d, %Y @ %I:%M %p')`"
+output: 
+  html_document:
+    toc: TRUE
+---
+
+# Packages Needed
+```{r}
+library(tidyverse)
+library(DT)
+```
+
+# Load CB Players
+```{r}
+cbs <- read.csv("data/players.csv") %>% filter(position == "CB")
+```
+
+# Load Necessary CSV Files
+```{r}
+defense <- read.csv("data/defense_summary.csv") %>% select(player_id, missed_tackle_rate, qb_rating_against, catch_rate) # miss %, pass_rtg, comp %
+cov_defense <- read.csv("data/defense_coverage_scheme.csv") %>% select(player_id, man_grades_coverage_defense, zone_grades_coverage_defense) # man_grade, zone_grade
+```
+
+# Combine Datasets
+```{r}
+cb_values <- cbs %>% left_join(defense, by = c("id" = "player_id")) %>% drop_na()
+cb_values <- cb_values %>% left_join(cov_defense, by = c("id" = "player_id")) %>% drop_na()
+cb_values <- cb_values %>% 
+  rename(miss_p = missed_tackle_rate, pass_rtg = qb_rating_against, comp_p = catch_rate, man_grade = man_grades_coverage_defense, zone_grade = zone_grades_coverage_defense) %>%
+  select(-id)
+head(cb_values)
+```
+
+# Get Mean Values (for testing)
+```{r}
+mean(cb_values$miss_p)
+mean(cb_values$pass_rtg)
+mean(cb_values$comp_p)
+mean(cb_values$man_grade)
+mean(cb_values$zone_grade)
+```
+
+# Create Rating Function
+```{r}
+get_cb_ratings <- function(input_df) {
+  df_cb_copy <- input_df %>% mutate(
+    man_grade = round(pmax(pmin((man_grade-55) / 3, 10), 0), 2),  # 55-85, mean 70
+    zone_grade = round(pmax(pmin((zone_grade-55) / 3, 10), 0), 2), # 55-85, mean 70
+    comp_p = round(pmax(pmin(((100-comp_p)-25)/4, 10), 0), 2), # 75-35, mean 55
+    pass_rtg = round(pmax(pmin(((200-pass_rtg)-100)/6, 10), 0), 2), # 100-40, mean 70
+    miss_p = round(pmax(pmin(((100-miss_p)-80)/1.5, 10), 0), 2), # 20-5, mean 12.5
+  )
+  return(df_cb_copy)
+}
+```
+
+# Create Final Dataset
+```{r}
+cb_ratings <- get_cb_ratings(cb_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+
+datatable(cb_ratings)
+```
+
