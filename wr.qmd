@@ -1,0 +1,93 @@
+# WR Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(cfbfastR)
+library(DT)
+```
+
+## Load Play-by-Play Data
+```{r}
+pbp_2025 <- load_cfb_pbp(seasons = 2025) # mean epa/target
+```
+
+## Load WR Players
+```{r}
+wrs <- read.csv("data/players.csv") %>% filter(position == "WR")
+```
+
+## Load Necessary CSV Files
+```{r}
+receiving <- read.csv("data/receiving_summary.csv") %>% 
+  select(player_id, grades_pass_route, yprr, drop_rate, contested_catch_rate) # rec grade, yprr, drop%, contested catch %
+```
+
+## Combine Datasets and Pull Names
+```{r}
+wr_values <- wrs %>% 
+  left_join(receiving, by = c("id" = "player_id")) %>% 
+  drop_na()
+wr_values <- wr_values %>% 
+  rename(rec_grade = grades_pass_route, cc_rate = contested_catch_rate)
+wr_names <- wr_values %>% pull(name)
+```
+
+## Calculate Mean EPA and Combine
+```{r}
+receiver_epa <- pbp_2025 %>%
+  filter(pass == 1) %>%
+  group_by(receiver_player_name) %>%
+  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %>%
+  filter(!is.na(receiver_player_name), receiver_player_name %in% wr_names) %>%
+  rename(name = receiver_player_name) %>%
+  arrange(-mean_epa)
+
+wr_values <- left_join(wr_values, receiver_epa, by = "name") %>% select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(wr_values$rec_grade)
+mean(wr_values$yprr)
+mean(wr_values$drop_rate)
+mean(wr_values$cc_rate)
+mean(wr_values$mean_epa)
+```
+
+## Create Rating Function
+```{r}
+get_wr_ratings <- function(input_df) {
+  df_wr_copy <- input_df %>% mutate(
+    rec_grade = round(pmax(pmin((rec_grade-60) / 3, 10), 0), 2), # 60-90, mean 75
+    yprr = round(pmax(pmin((yprr-1.5) * 6.67, 10), 0), 2), # 1.5-3, mean 2.25
+    drop_rate = round(pmax(pmin(((100-drop_rate)-88), 10), 0), 2), # 12-2, mean 7
+    cc_rate = round(pmax(pmin((cc_rate-35) / 3, 10), 0), 2), # 35-65, mean 50
+    mean_epa = round(pmax(pmin((mean_epa) * 10, 10), 0), 2), # 0-1, mean .5
+  )
+  
+  return(df_wr_copy)
+}
+```
+
+## Create Final Dataset
+```{r}
+wr_ratings <- get_wr_ratings(wr_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  wr_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```

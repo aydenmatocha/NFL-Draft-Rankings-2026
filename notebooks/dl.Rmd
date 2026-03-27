@@ -13,7 +13,7 @@ library(tidyverse)
 library(DT)
 ```
 
-# Load ED Players
+# Load DL Players
 ```{r}
 dls <- read.csv("data/players.csv") %>% filter(position == "DI")
 ```
@@ -54,7 +54,7 @@ get_dl_ratings <- function(input_df) {
     rdef_grade = round(pmax(pmin((rdef_grade-60) / 3, 10), 0), 2), # 60-90, mean 75
     prsh_win_p = round(pmax(pmin((prsh_win_p-4)*1.25, 10), 0), 2), # 4-12, mean 8
     run_stop_p = round(pmax(pmin((run_stop_p-4)*1.67, 10), 0), 2), # 4-10, mean 7
-    prp = round(pmax(pmin((prp-3)*1.25, 5), 0), 2), # 3-7, mean 5, worth 5
+    prp = round(pmax(pmin((prp-2), 5), 0), 2), # 2-7, mean 4.5, worth 5
     miss_p = round(pmax(pmin(((100-miss_p)-82) / 1.8, 5), 0), 2), # 18-9, mean 13.5, worth 5
   )
   

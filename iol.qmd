@@ -1,0 +1,79 @@
+# IOL Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(DT)
+```
+
+## Load IOL Players
+```{r}
+iols <- read.csv("data/players.csv") %>% filter(position == "G" | position == "C")
+```
+
+## Load Necessary CSV Files
+```{r}
+blocking <- read.csv("data/offense_blocking.csv") %>% 
+  select(player_id, grades_pass_block, grades_run_block, pbe) # pb grade, rb grade, pbe
+run_blocking <- read.csv("data/ol/offense_run_blocking.csv") %>% 
+  select(player_id, zone_grades_run_block, gap_grades_run_block) # zone grade, gap grade
+```
+
+## Combine Datasets
+```{r}
+iol_values <- iols %>% 
+  left_join(blocking, by = c("id" = "player_id")) %>% 
+  drop_na()
+iol_values <- iol_values %>% 
+  left_join(run_blocking, by = c("id" = "player_id")) %>% 
+  drop_na()
+iol_values <- iol_values %>% 
+  rename(pb_grade = grades_pass_block, rb_grade = grades_run_block, zone_grade = zone_grades_run_block, gap_grade = gap_grades_run_block) %>%
+  select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(iol_values$pb_grade)
+mean(iol_values$rb_grade)
+mean(iol_values$pbe)
+mean(iol_values$zone_grade)
+mean(iol_values$gap_grade)
+```
+
+## Create Rating Function
+```{r}
+get_iol_ratings <- function(input_df) {
+  df_iol_copy <- input_df %>% mutate(
+    pb_grade = round(pmax(pmin((pb_grade-65) / 2, 10), 0), 2), # 65-85, mean 75
+    rb_grade = round(pmax(pmin((rb_grade-65) / 2, 10), 0), 2),  # 65-85, mean 75
+    pbe = round(pmax(pmin((pbe-95) * 2.5, 10), 0), 2), # 95-99, mean 97
+    zone_grade = round(pmax(pmin((zone_grade-65) / 2, 10), 0), 2), # 65-85, mean 75
+    gap_grade = round(pmax(pmin((gap_grade-55) / 2, 10), 0), 2), # 55-75, mean 65
+  )
+  
+  return(df_iol_copy)
+}
+```
+
+## Create Final Dataset
+```{r}
+iol_ratings <- get_iol_ratings(iol_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  iol_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```

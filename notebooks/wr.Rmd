@@ -68,7 +68,7 @@ get_wr_ratings <- function(input_df) {
   df_wr_copy <- input_df %>% mutate(
     rec_grade = round(pmax(pmin((rec_grade-60) / 3, 10), 0), 2), # 60-90, mean 75
     yprr = round(pmax(pmin((yprr-1.5) * 6.67, 10), 0), 2), # 1.5-3, mean 2.25
-    drop_rate = round(pmax(pmin(((100-drop_rate)-90) * 1.67, 10), 0), 2), # 10-4, mean 7
+    drop_rate = round(pmax(pmin(((100-drop_rate)-88), 10), 0), 2), # 12-2, mean 7
     cc_rate = round(pmax(pmin((cc_rate-35) / 3, 10), 0), 2), # 35-65, mean 50
     mean_epa = round(pmax(pmin((mean_epa) * 10, 10), 0), 2), # 0-1, mean .5
   )

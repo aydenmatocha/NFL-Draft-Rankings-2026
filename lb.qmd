@@ -1,0 +1,81 @@
+# LB Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(DT)
+```
+
+## Load LB Players
+```{r}
+lbs <- read.csv("data/players.csv") %>% filter(position == "LB")
+```
+
+## Load Necessary CSV Files
+```{r}
+defense <- read.csv("data/defense_summary.csv") %>% 
+  select(player_id, grades_run_defense, grades_pass_rush_defense, grades_coverage_defense, missed_tackle_rate, qb_rating_against) # rdef grade, prsh grade, cov grade, miss %, pass_rtg
+run_defense <- read.csv("data/run_defense_summary.csv") %>% 
+  select(player_id, stop_percent) # run stop %
+```
+
+## Combine Datasets
+```{r}
+lb_values <- lbs %>% 
+  left_join(defense, by = c("id" = "player_id")) %>% 
+  drop_na()
+lb_values <- lb_values %>% 
+  left_join(run_defense, by = c("id" = "player_id")) %>% 
+  drop_na()
+lb_values <- lb_values %>% 
+  rename(rdef_grade = grades_run_defense, prsh_grade = grades_pass_rush_defense, cov_grade = grades_coverage_defense, miss_p = missed_tackle_rate, pass_rtg = qb_rating_against, run_stop_p = stop_percent) %>%
+  select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(lb_values$rdef_grade)
+mean(lb_values$prsh_grade)
+mean(lb_values$cov_grade)
+mean(lb_values$miss_p)
+mean(lb_values$pass_rtg)
+mean(lb_values$run_stop_p)
+```
+
+## Create Rating Function
+```{r}
+get_lb_ratings <- function(input_df) {
+  df_lb_copy <- input_df %>% mutate(
+    rdef_grade = round(pmax(pmin((rdef_grade-65) / 2, 10), 0), 2), # 65-85, mean 75
+    prsh_grade = round(pmax(pmin((prsh_grade-60) / 2, 10), 0), 2),  # 60-80, mean 70
+    cov_grade = round(pmax(pmin((cov_grade-50) / 3, 10), 0), 2), # 50-80, mean 65
+    miss_p = round(pmax(pmin(((100-miss_p)-83) / 1.2, 10), 0), 2), # 17-5, mean 11
+    pass_rtg = round(pmax(pmin(((200-pass_rtg)-80) / 10, 5), 0), 2), # 120-70, mean 95, worth 5
+    run_stop_p = round(pmax(pmin((run_stop_p-6), 5), 0), 2), # 6-11, mean 8.5, worth 5
+  )
+  
+  return(df_lb_copy)
+}
+```
+
+## Create Final Dataset
+```{r}
+lb_ratings <- get_lb_ratings(lb_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  lb_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```

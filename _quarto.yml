@@ -1,0 +1,41 @@
+project:
+  type: book
+
+book:
+  title: "2026 NFL Draft Rankings"
+  author: "Ayden Matocha"
+  date: last-modified
+  date-format: "[Last modified on] MMMM DD, YYYY HH:mm:ss zzz"
+  chapters:
+    - index.qmd
+    - qb.qmd
+    - rb.qmd
+    - wr.qmd
+    - te.qmd
+    - ot.qmd
+    - iol.qmd
+    - lb.qmd
+    - cb.qmd
+    - s.qmd
+    - ed.qmd
+    - dl.qmd
+
+
+execute:
+  warning: false
+  
+format:
+  html: 
+    axe:
+    output: document
+    theme: pulse
+    css: styles.css
+    page-layout: article
+    grid:
+      sidebar-width: 150px
+      body-width: 1100px
+      margin-width: 100px
+    fig-width: 4
+    fig-height: 4
+    fig-align: "center"
+    code-fold: false

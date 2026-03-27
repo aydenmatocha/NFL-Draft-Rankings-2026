@@ -1,0 +1,92 @@
+# QB Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(cfbfastR)
+library(DT)
+```
+
+## Load Play-by-Play Data
+```{r}
+pbp_2025 <- load_cfb_pbp(seasons = 2025) # mean epa/dropback
+```
+
+
+## Load QB Players
+```{r}
+qbs <- read.csv("data/players.csv") %>% filter(position == "QB")
+```
+
+## Load Necessary CSV Files
+```{r}
+passing <- read.csv("data/qb/passing_summary.csv") %>% 
+  select(player, grades_pass, qb_rating, twp_rate, btt_rate) # pass grade, qb rating, tw%, btt%
+```
+
+## Combine Datasets and Pull Names
+```{r}
+qb_values <- qbs %>% 
+  left_join(passing, by = c("name" = "player")) %>% 
+  drop_na()
+qb_names <- qb_values %>% pull(name)
+```
+
+## Calculate Mean EPA and Combine
+```{r}
+passer_epa <- pbp_2025 %>%
+  filter(pass == 1) %>%
+  group_by(passer_player_name) %>%
+  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %>%
+  filter(!is.na(passer_player_name), passer_player_name %in% qb_names) %>%
+  rename(name = passer_player_name) %>%
+  arrange(-mean_epa)
+
+qb_values <- left_join(qb_values, passer_epa, by = "name") %>% select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(qb_values$grades_pass)
+mean(qb_values$qb_rating)
+mean(qb_values$twp_rate)
+mean(qb_values$btt_rate)
+mean(qb_values$mean_epa)
+```
+
+## Create Rating Function
+```{r}
+get_qb_ratings <- function(input_df) {
+  input_df <- input_df %>% mutate(
+    grades_pass = round(pmax(pmin((grades_pass-70) / 2, 10), 0), 2), # 70-90, mean 80
+    qb_rating = round(pmax(pmin((qb_rating-90) / 3, 10), 0), 2), # 90-120, mean 105
+    twp_rate = round(pmax(pmin(((100-twp_rate)-96) * 5, 10), 0), 2), # 4-2, mean 3
+    btt_rate = round(pmax(pmin((btt_rate-3) * 3.33, 10), 0), 2), # 3-6, mean 4.5
+    mean_epa = round(pmax(pmin((mean_epa) * 33.33, 10), 0), 2), # 0-.3, mean .15
+  )
+  
+  return(input_df)
+}
+```
+
+## Create Final Dataset
+```{r}
+qb_ratings <- get_qb_ratings(qb_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  qb_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```

@@ -1,0 +1,4 @@
+table.dataTable td, 
+table.dataTable th {
+  font-size: 15px;   /* default ~14–16px */
+}

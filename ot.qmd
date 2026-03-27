@@ -1,0 +1,79 @@
+# OT Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(DT)
+```
+
+## Load OT Players
+```{r}
+ots <- read.csv("data/players.csv") %>% filter(position == "T")
+```
+
+## Load Necessary CSV Files
+```{r}
+blocking <- read.csv("data/offense_blocking.csv") %>% 
+  select(player_id, grades_pass_block, grades_run_block, pbe) # pb grade, rb grade, pbe
+run_blocking <- read.csv("data/ol/offense_run_blocking.csv") %>% 
+  select(player_id, zone_grades_run_block, gap_grades_run_block) # zone grade, gap grade
+```
+
+## Combine Datasets
+```{r}
+ot_values <- ots %>% 
+  left_join(blocking, by = c("id" = "player_id")) %>% 
+  drop_na()
+ot_values <- ot_values %>% 
+  left_join(run_blocking, by = c("id" = "player_id")) %>% 
+  drop_na()
+ot_values <- ot_values %>% 
+  rename(pb_grade = grades_pass_block, rb_grade = grades_run_block, zone_grade = zone_grades_run_block, gap_grade = gap_grades_run_block) %>%
+  select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(ot_values$pb_grade)
+mean(ot_values$rb_grade)
+mean(ot_values$pbe)
+mean(ot_values$zone_grade)
+mean(ot_values$gap_grade)
+```
+
+## Create Rating Function
+```{r}
+get_ot_ratings <- function(input_df) {
+  df_ot_copy <- input_df %>% mutate(
+    pb_grade = round(pmax(pmin((pb_grade-65) / 2, 10), 0), 2), # 65-85, mean 75
+    rb_grade = round(pmax(pmin((rb_grade-65) / 2, 10), 0), 2),  # 65-85, mean 75
+    pbe = round(pmax(pmin((pbe-95) * 2.5, 10), 0), 2), # 95-99, mean 97
+    zone_grade = round(pmax(pmin((zone_grade-65) / 2, 10), 0), 2), # 65-85, mean 75
+    gap_grade = round(pmax(pmin((gap_grade-55) / 2, 10), 0), 2), # 55-75, mean 65
+  )
+  
+  return(df_ot_copy)
+}
+```
+
+## Create Final Dataset
+```{r}
+ot_ratings <- get_ot_ratings(ot_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  ot_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```

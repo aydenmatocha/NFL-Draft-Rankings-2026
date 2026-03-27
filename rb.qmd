@@ -1,0 +1,105 @@
+# RB Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(cfbfastR)
+library(DT)
+```
+
+## Load Play-by-Play Data
+```{r}
+pbp_2025 <- load_cfb_pbp(seasons = 2025) # mean epa/dropback
+```
+
+## Load RB Players
+```{r}
+rbs <- read.csv("data/players.csv") %>% filter(position == "HB")
+head(rbs)
+```
+
+## Load Necessary CSV Files
+```{r}
+rushing <- read.csv("data/rb/rushing_summary.csv") %>% 
+  select(player_id, grades_run, yco_attempt, attempts, fumbles) # rush grade, yac/attempt, fum%
+receiving <- read.csv("data/receiving_summary.csv") %>% 
+  select(player_id, grades_pass_block, yprr, grades_pass_route) # rec grade, yprr, pb grade
+```
+
+## Combine Datasets and Pull Names
+```{r}
+rb_values <- rbs %>% 
+  left_join(rushing, by = c("id" = "player_id")) %>% 
+  drop_na()
+rb_values <- rb_values %>% 
+  left_join(receiving, by = c("id" = "player_id")) %>% 
+  drop_na()
+rb_values <- rb_values %>% 
+  mutate(fum_p = round((fumbles/attempts)*100, 2)) %>% 
+  select(-attempts, -fumbles) %>% # get fum%
+  rename(rush_grade = grades_run, yac_att = yco_attempt, pb_grade = grades_pass_block, rec_grade = grades_pass_route)
+rb_names <- rb_values %>% pull(name)
+```
+
+## Calculate Mean EPA and Combine
+```{r}
+rusher_epa <- pbp_2025 %>%
+  filter(rush == 1) %>%
+  group_by(rusher_player_name) %>%
+  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %>%
+  filter(!is.na(rusher_player_name), rusher_player_name %in% rb_names) %>%
+  rename(name = rusher_player_name) %>%
+  arrange(-mean_epa)
+
+rb_values <- left_join(rb_values, rusher_epa, by = "name") %>% select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(rb_values$rush_grade)
+mean(rb_values$yac_att)
+mean(rb_values$pb_grade)
+mean(rb_values$yprr)
+mean(rb_values$rec_grade)
+mean(rb_values$fum_p)
+mean(rb_values$mean_epa)
+```
+
+## Create Rating Function
+```{r}
+get_rb_ratings <- function(input_df) {
+  df_rb_copy <- input_df %>% mutate(
+    rush_grade = round(pmax(pmin((rush_grade-70) / 2, 10), 0), 2), # 70-90, mean 80
+    yac_att = round(pmax(pmin((yac_att-2.5) * 5, 10), 0), 2), # 2.5-4.5, mean 3.5
+    mean_epa = round(pmax(pmin((mean_epa) * 50, 10), 0), 2), # 0-.2, mean .1
+    yprr = round(pmax(pmin((yprr-0.5) * 5, 5), 0), 2), # 0.5-1.5, mean 1, worth 5
+    pb_grade = round(pmax(pmin((pb_grade-35) / 6, 5), 0), 2), # 35-65, mean 50, worth 5
+    rec_grade = round(pmax(pmin((rec_grade-50) / 4, 5), 0), 2), # 50-70, mean 60, worth 5
+    fum_p = round(pmax(pmin(((100-fum_p)-98) * 3.33, 5), 0), 2), # 2-0.5, mean 1.25, worth 5
+  )
+  
+  return(df_rb_copy)
+}
+```
+
+## Create Final Dataset
+```{r}
+rb_ratings <- get_rb_ratings(rb_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  rb_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```

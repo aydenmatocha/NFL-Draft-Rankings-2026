@@ -1,0 +1,79 @@
+# S Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(DT)
+```
+
+## Load S Players
+```{r}
+safs <- read.csv("data/players.csv") %>% filter(position == "S")
+```
+
+## Load Necessary CSV Files
+```{r}
+defense <- read.csv("data/defense_summary.csv") %>% 
+  select(player_id, missed_tackle_rate, qb_rating_against, grades_run_defense) # miss %, pass_rtg, rdef_grade
+cov_defense <- read.csv("data/defense_coverage_scheme.csv") %>% 
+  select(player_id, man_grades_coverage_defense, zone_grades_coverage_defense) # man_grade, zone_grade
+```
+
+## Combine Datasets
+```{r}
+s_values <- safs %>% 
+  left_join(defense, by = c("id" = "player_id")) %>% 
+  drop_na()
+s_values <- s_values %>% 
+  left_join(cov_defense, by = c("id" = "player_id")) %>% 
+  drop_na()
+s_values <- s_values %>% 
+  rename(miss_p = missed_tackle_rate, pass_rtg = qb_rating_against, man_grade = man_grades_coverage_defense, zone_grade = zone_grades_coverage_defense, rdef_grade = grades_run_defense) %>%
+  select(-id)
+```
+
+## Get Mean Values (for testing)
+```{r}
+mean(s_values$miss_p)
+mean(s_values$pass_rtg)
+mean(s_values$rdef_grade)
+mean(s_values$man_grade)
+mean(s_values$zone_grade)
+```
+
+## Create Rating Function
+```{r}
+get_s_ratings <- function(input_df) {
+  df_s_copy <- input_df %>% mutate(
+    man_grade = round(pmax(pmin((man_grade-55) / 3, 10), 0), 2),  # 55-85, mean 70
+    zone_grade = round(pmax(pmin((zone_grade-55) / 3, 10), 0), 2), # 55-85, mean 70
+    rdef_grade = round(pmax(pmin((rdef_grade-60) / 2.5, 10), 0), 2), # 60-85, mean 72.5
+    miss_p = round(pmax(pmin(((100-miss_p)-82), 10), 0), 2), # 18-8, mean 13
+    pass_rtg = round(pmax(pmin(((200-pass_rtg)-80) / 6, 10), 0), 2), # 120-60, mean 85
+  )
+  
+  return(df_s_copy)
+}
+```
+
+## Create Final Dataset
+```{r}
+s_ratings <- get_s_ratings(s_values) %>% 
+  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
+  arrange(-total) %>%
+  mutate(pos_rank_aft = row_number())
+```
+
+## Display Ratings
+```{r}
+DT::datatable(
+  s_ratings,
+  options = list(
+    scrollX = TRUE,
+    autoWidth = TRUE
+  ),
+  class = "compact stripe hover",
+  fillContainer = FALSE
+)
+```
