@@ -1,0 +1,35 @@
+# Final Rankings
+
+## Packages Needed
+```{r}
+#| message: false
+library(tidyverse)
+library(DT)
+```
+
+## Load Position Rankings
+```{r}
+qb <- read.csv("data/rankings/qb.csv")
+rb <- read.csv("data/rankings/rb.csv")
+wr <- read.csv("data/rankings/wr.csv")
+te <- read.csv("data/rankings/te.csv")
+ot <- read.csv("data/rankings/ot.csv")
+iol <- read.csv("data/rankings/iol.csv")
+lb <- read.csv("data/rankings/lb.csv")
+cb <- read.csv("data/rankings/cb.csv")
+s <- read.csv("data/rankings/s.csv")
+ed <- read.csv("data/rankings/ed.csv")
+dl <- read.csv("data/rankings/dl.csv")
+```
+
+## Combine Rankings
+```{r}
+final_rankings <- bind_rows(qb, rb, wr, te, ot, iol, lb, cb, s, ed, dl) %>%
+  arrange(-total)
+```
+
+## Display Final Rankings
+```{r}
+datatable(final_rankings)
+```
+

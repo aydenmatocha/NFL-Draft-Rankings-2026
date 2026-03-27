@@ -101,4 +101,8 @@ DT::datatable(
 )
 ```
 
-
+```{r echo=FALSE}
+te <- te_ratings %>%
+  select(name, position, team, rank, total)
+write.csv(te, "data/rankings/te.csv", row.names = FALSE)
+```

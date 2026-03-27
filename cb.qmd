@@ -77,3 +77,9 @@ DT::datatable(
   fillContainer = FALSE
 )
 ```
+
+```{r echo=FALSE}
+cb <- cb_ratings %>%
+  select(name, position, team, rank, total)
+write.csv(cb, "data/rankings/cb.csv", row.names = FALSE)
+```

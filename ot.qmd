@@ -9,7 +9,7 @@ library(DT)
 
 ## Load OT Players
 ```{r}
-ots <- read.csv("data/players.csv") %>% filter(position == "T")
+ots <- read.csv("data/players.csv") %>% filter(position == "T") %>% mutate(position = "OT")
 ```
 
 ## Load Necessary CSV Files
@@ -76,4 +76,10 @@ DT::datatable(
   class = "compact stripe hover",
   fillContainer = FALSE
 )
+```
+
+```{r echo=FALSE}
+ot <- ot_ratings %>%
+  select(name, position, team, rank, total)
+write.csv(ot, "data/rankings/ot.csv", row.names = FALSE)
 ```

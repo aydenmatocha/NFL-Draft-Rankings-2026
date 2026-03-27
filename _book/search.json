@@ -160,11 +160,21 @@
     ]
   },
   {
+    "objectID": "rb.html#calculate-mean-epa-and-combine",
+    "href": "rb.html#calculate-mean-epa-and-combine",
+    "title": "2  RB Rankings",
+    "section": "2.6 Calculate Mean EPA and Combine",
+    "text": "2.6 Calculate Mean EPA and Combine\n\nrusher_epa &lt;- pbp_2025 %&gt;%\n  filter(rush == 1) %&gt;%\n  group_by(rusher_player_name) %&gt;%\n  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %&gt;%\n  filter(!is.na(rusher_player_name), rusher_player_name %in% rb_names) %&gt;%\n  rename(name = rusher_player_name) %&gt;%\n  arrange(-mean_epa)\n\nrb_values &lt;- left_join(rb_values, rusher_epa, by = \"name\") %&gt;% select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
     "objectID": "rb.html#get-mean-values-for-testing",
     "href": "rb.html#get-mean-values-for-testing",
     "title": "2  RB Rankings",
-    "section": "3.1 Get Mean Values (for testing)",
-    "text": "3.1 Get Mean Values (for testing)\n\nmean(rb_values$rush_grade)\n\n[1] 78.04571\n\nmean(rb_values$yac_att)\n\n[1] 3.156571\n\nmean(rb_values$pb_grade)\n\n[1] 48.96857\n\nmean(rb_values$yprr)\n\n[1] 0.9597143\n\nmean(rb_values$rec_grade)\n\n[1] 59.48\n\nmean(rb_values$fum_p)\n\n[1] 1.039143\n\nmean(rb_values$mean_epa)\n\n[1] 0.02751429",
+    "section": "2.7 Get Mean Values (for testing)",
+    "text": "2.7 Get Mean Values (for testing)\n\nmean(rb_values$rush_grade)\n\n[1] 78.04571\n\nmean(rb_values$yac_att)\n\n[1] 3.156571\n\nmean(rb_values$pb_grade)\n\n[1] 48.96857\n\nmean(rb_values$yprr)\n\n[1] 0.9597143\n\nmean(rb_values$rec_grade)\n\n[1] 59.48\n\nmean(rb_values$fum_p)\n\n[1] 1.039143\n\nmean(rb_values$mean_epa)\n\n[1] 0.02751429",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
     ]
@@ -173,8 +183,8 @@
     "objectID": "rb.html#create-rating-function",
     "href": "rb.html#create-rating-function",
     "title": "2  RB Rankings",
-    "section": "3.2 Create Rating Function",
-    "text": "3.2 Create Rating Function\n\nget_rb_ratings &lt;- function(input_df) {\n  df_rb_copy &lt;- input_df %&gt;% mutate(\n    rush_grade = round(pmax(pmin((rush_grade-70) / 2, 10), 0), 2), # 70-90, mean 80\n    yac_att = round(pmax(pmin((yac_att-2.5) * 5, 10), 0), 2), # 2.5-4.5, mean 3.5\n    mean_epa = round(pmax(pmin((mean_epa) * 50, 10), 0), 2), # 0-.2, mean .1\n    yprr = round(pmax(pmin((yprr-0.5) * 5, 5), 0), 2), # 0.5-1.5, mean 1, worth 5\n    pb_grade = round(pmax(pmin((pb_grade-35) / 6, 5), 0), 2), # 35-65, mean 50, worth 5\n    rec_grade = round(pmax(pmin((rec_grade-50) / 4, 5), 0), 2), # 50-70, mean 60, worth 5\n    fum_p = round(pmax(pmin(((100-fum_p)-98) * 3.33, 5), 0), 2), # 2-0.5, mean 1.25, worth 5\n  )\n  \n  return(df_rb_copy)\n}",
+    "section": "2.8 Create Rating Function",
+    "text": "2.8 Create Rating Function\n\nget_rb_ratings &lt;- function(input_df) {\n  df_rb_copy &lt;- input_df %&gt;% mutate(\n    rush_grade = round(pmax(pmin((rush_grade-70) / 2, 10), 0), 2), # 70-90, mean 80\n    yac_att = round(pmax(pmin((yac_att-2.5) * 5, 10), 0), 2), # 2.5-4.5, mean 3.5\n    mean_epa = round(pmax(pmin((mean_epa) * 50, 10), 0), 2), # 0-.2, mean .1\n    yprr = round(pmax(pmin((yprr-0.5) * 5, 5), 0), 2), # 0.5-1.5, mean 1, worth 5\n    pb_grade = round(pmax(pmin((pb_grade-35) / 6, 5), 0), 2), # 35-65, mean 50, worth 5\n    rec_grade = round(pmax(pmin((rec_grade-50) / 4, 5), 0), 2), # 50-70, mean 60, worth 5\n    fum_p = round(pmax(pmin(((100-fum_p)-98) * 3.33, 5), 0), 2), # 2-0.5, mean 1.25, worth 5\n  )\n  \n  return(df_rb_copy)\n}",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
     ]
@@ -183,8 +193,8 @@
     "objectID": "rb.html#create-final-dataset",
     "href": "rb.html#create-final-dataset",
     "title": "2  RB Rankings",
-    "section": "3.3 Create Final Dataset",
-    "text": "3.3 Create Final Dataset\n\nrb_ratings &lt;- get_rb_ratings(rb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "section": "2.9 Create Final Dataset",
+    "text": "2.9 Create Final Dataset\n\nrb_ratings &lt;- get_rb_ratings(rb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
     ]
@@ -193,8 +203,8 @@
     "objectID": "rb.html#display-ratings",
     "href": "rb.html#display-ratings",
     "title": "2  RB Rankings",
-    "section": "3.4 Display Ratings",
-    "text": "3.4 Display Ratings\n\nDT::datatable(\n  rb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "section": "2.10 Display Ratings",
+    "text": "2.10 Display Ratings\n\nDT::datatable(\n  rb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
     ]
@@ -414,7 +424,7 @@
     "href": "ot.html#load-ot-players",
     "title": "5  OT Rankings",
     "section": "5.2 Load OT Players",
-    "text": "5.2 Load OT Players\n\nots &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"T\")",
+    "text": "5.2 Load OT Players\n\nots &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"T\") %&gt;% mutate(position = \"OT\")",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
     ]
@@ -957,6 +967,46 @@
     "text": "11.8 Display Ratings\n\nDT::datatable(\n  dl_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
     "crumbs": [
       "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html",
+    "href": "final.html",
+    "title": "12  Final Rankings",
+    "section": "",
+    "text": "12.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html#load-position-rankings",
+    "href": "final.html#load-position-rankings",
+    "title": "12  Final Rankings",
+    "section": "12.2 Load Position Rankings",
+    "text": "12.2 Load Position Rankings\n\nqb &lt;- read.csv(\"data/rankings/qb.csv\")\nrb &lt;- read.csv(\"data/rankings/rb.csv\")\nwr &lt;- read.csv(\"data/rankings/wr.csv\")\nte &lt;- read.csv(\"data/rankings/te.csv\")\not &lt;- read.csv(\"data/rankings/ot.csv\")\niol &lt;- read.csv(\"data/rankings/iol.csv\")\nlb &lt;- read.csv(\"data/rankings/lb.csv\")\ncb &lt;- read.csv(\"data/rankings/cb.csv\")\ns &lt;- read.csv(\"data/rankings/s.csv\")\ned &lt;- read.csv(\"data/rankings/ed.csv\")\ndl &lt;- read.csv(\"data/rankings/dl.csv\")",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html#combine-rankings",
+    "href": "final.html#combine-rankings",
+    "title": "12  Final Rankings",
+    "section": "12.3 Combine Rankings",
+    "text": "12.3 Combine Rankings\n\nfinal_rankings &lt;- bind_rows(qb, rb, wr, te, ot, iol, lb, cb, s, ed, dl) %&gt;%\n  arrange(-total)",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html#display-final-rankings",
+    "href": "final.html#display-final-rankings",
+    "title": "12  Final Rankings",
+    "section": "12.4 Display Final Rankings",
+    "text": "12.4 Display Final Rankings\n\ndatatable(final_rankings)",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
     ]
   }
 ]

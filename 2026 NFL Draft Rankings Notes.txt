@@ -5,7 +5,7 @@
 - Scrape from PFF big board, get the name, team, position, and rank
 - class="g-card__content g-py-2"
 - Use chatgpt method to activate slim button, which then shows the full big board
-- name, position, college, pff_rank
+- name, position, college, pff_rank, id!!
 - "players"[
 
 QB
@@ -42,11 +42,13 @@ TE
 - receiving grade [10]
 - run block grade [10]
 - yprr [10]
-- drop %
-- contested catch %
-- epa/target?
-- pb grade?
+- drop % [5]
+- contested catch % [5]
+- epa/target? [5]
+- pb grade? [5]
 receiving_summary.csv: rec grade, yprr, drop%, ctc%
+offense_blocking.csv: rb grade, pb grade
+cfbfastr: epa/target
 
 OT/IOL
 - Pass Blocking Grade [10]
@@ -62,10 +64,12 @@ ED/DL
 - Run Defense Grade [10]
 - Pass Rush Win Rate [10]
 - Run Stop Rate [10]
-- prp [10?]
-maybe add missed tackle %?
-pass_rush_summary.csv: pr grade, pr win%, prp
-run_defense_summary.csv: rdef grade, run stop%
+- prp [5]
+maybe add missed tackle %? [5]
+defense_summary
+defense_summary: pr grade, rdef grade, miss%
+pass_rush_summary.csv: pr win%, prp
+run_defense_summary.csv: run stop%
 
 LB
 - Pass Coverage Grade [10]
@@ -88,6 +92,8 @@ CB
 - Completion Percentage [10]
 defense_summary: pass rtg, miss%, comp%
 defense_coverage_scheme: man, zone
+possible add run def? (worth 5 with miss_p)
+maybe epa/target? (replace comp_p)
 
 S
 - Man Grade [10]

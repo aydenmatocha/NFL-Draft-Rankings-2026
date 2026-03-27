@@ -19,6 +19,7 @@ book:
     - s.qmd
     - ed.qmd
     - dl.qmd
+    - final.qmd
 
 
 execute:

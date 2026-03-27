@@ -77,3 +77,9 @@ DT::datatable(
   fillContainer = FALSE
 )
 ```
+
+```{r echo=FALSE}
+iol <- iol_ratings %>%
+  select(name, position, team, rank, total)
+write.csv(iol, "data/rankings/iol.csv", row.names = FALSE)
+```
