@@ -31,7 +31,6 @@ format:
     output: document
     theme: pulse
     css: styles.css
-    page-layout: article
     grid:
       sidebar-width: 150px
       body-width: 1100px
