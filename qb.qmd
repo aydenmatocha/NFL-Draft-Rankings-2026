@@ -74,8 +74,8 @@ get_qb_ratings <- function(input_df) {
 ```{r}
 qb_ratings <- get_qb_ratings(qb_values) %>% 
   mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
-  arrange(-total) %>%
-  mutate(pos_rank_aft = row_number())
+  arrange(-total) #%>%
+  #mutate(pos_rank_aft = row_number())
 ```
 
 ## Display Ratings

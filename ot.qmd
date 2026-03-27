@@ -61,8 +61,8 @@ get_ot_ratings <- function(input_df) {
 ```{r}
 ot_ratings <- get_ot_ratings(ot_values) %>% 
   mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
-  arrange(-total) %>%
-  mutate(pos_rank_aft = row_number())
+  arrange(-total) #%>%
+  #mutate(pos_rank_aft = row_number())
 ```
 
 ## Display Ratings

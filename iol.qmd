@@ -61,8 +61,8 @@ get_iol_ratings <- function(input_df) {
 ```{r}
 iol_ratings <- get_iol_ratings(iol_values) %>% 
   mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
-  arrange(-total) %>%
-  mutate(pos_rank_aft = row_number())
+  arrange(-total) #%>%
+  #mutate(pos_rank_aft = row_number())
 ```
 
 ## Display Ratings

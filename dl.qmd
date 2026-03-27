@@ -69,8 +69,8 @@ get_dl_ratings <- function(input_df) {
 ```{r}
 dl_ratings <- get_dl_ratings(dl_values) %>% 
   mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %>% 
-  arrange(-total) %>%
-  mutate(pos_rank_aft = row_number())
+  arrange(-total) #%>%
+  #mutate(pos_rank_aft = row_number())
 ```
 
 ## Display Ratings

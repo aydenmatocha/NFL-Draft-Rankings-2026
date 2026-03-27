@@ -94,7 +94,7 @@
     "href": "qb.html#create-final-dataset",
     "title": "1  QB Rankings",
     "section": "1.9 Create Final Dataset",
-    "text": "1.9 Create Final Dataset\n\nqb_ratings &lt;- get_qb_ratings(qb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "1.9 Create Final Dataset\n\nqb_ratings &lt;- get_qb_ratings(qb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
     ]
@@ -194,7 +194,7 @@
     "href": "rb.html#create-final-dataset",
     "title": "2  RB Rankings",
     "section": "2.9 Create Final Dataset",
-    "text": "2.9 Create Final Dataset\n\nrb_ratings &lt;- get_rb_ratings(rb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "2.9 Create Final Dataset\n\nrb_ratings &lt;- get_rb_ratings(rb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
     ]
@@ -294,7 +294,7 @@
     "href": "wr.html#create-final-dataset",
     "title": "3  WR Rankings",
     "section": "3.9 Create Final Dataset",
-    "text": "3.9 Create Final Dataset\n\nwr_ratings &lt;- get_wr_ratings(wr_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "3.9 Create Final Dataset\n\nwr_ratings &lt;- get_wr_ratings(wr_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
     ]
@@ -394,7 +394,7 @@
     "href": "te.html#create-final-dataset",
     "title": "4  TE Rankings",
     "section": "4.9 Create Final Dataset",
-    "text": "4.9 Create Final Dataset\n\nte_ratings &lt;- get_te_ratings(te_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "4.9 Create Final Dataset\n\nte_ratings &lt;- get_te_ratings(te_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
     ]
@@ -474,7 +474,7 @@
     "href": "ot.html#create-final-dataset",
     "title": "5  OT Rankings",
     "section": "5.7 Create Final Dataset",
-    "text": "5.7 Create Final Dataset\n\not_ratings &lt;- get_ot_ratings(ot_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "5.7 Create Final Dataset\n\not_ratings &lt;- get_ot_ratings(ot_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
     ]
@@ -554,7 +554,7 @@
     "href": "iol.html#create-final-dataset",
     "title": "6  IOL Rankings",
     "section": "6.7 Create Final Dataset",
-    "text": "6.7 Create Final Dataset\n\niol_ratings &lt;- get_iol_ratings(iol_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "6.7 Create Final Dataset\n\niol_ratings &lt;- get_iol_ratings(iol_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
     ]
@@ -634,7 +634,7 @@
     "href": "lb.html#create-final-dataset",
     "title": "7  LB Rankings",
     "section": "7.7 Create Final Dataset",
-    "text": "7.7 Create Final Dataset\n\nlb_ratings &lt;- get_lb_ratings(lb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "7.7 Create Final Dataset\n\nlb_ratings &lt;- get_lb_ratings(lb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
     ]
@@ -714,7 +714,7 @@
     "href": "cb.html#create-final-dataset",
     "title": "8  CB Rankings",
     "section": "8.7 Create Final Dataset",
-    "text": "8.7 Create Final Dataset\n\ncb_ratings &lt;- get_cb_ratings(cb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "8.7 Create Final Dataset\n\ncb_ratings &lt;- get_cb_ratings(cb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
     ]
@@ -794,7 +794,7 @@
     "href": "s.html#create-final-dataset",
     "title": "9  S Rankings",
     "section": "9.7 Create Final Dataset",
-    "text": "9.7 Create Final Dataset\n\ns_ratings &lt;- get_s_ratings(s_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "9.7 Create Final Dataset\n\ns_ratings &lt;- get_s_ratings(s_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
     ]
@@ -874,7 +874,7 @@
     "href": "ed.html#create-final-dataset",
     "title": "10  ED Rankings",
     "section": "10.7 Create Final Dataset",
-    "text": "10.7 Create Final Dataset\n\ned_ratings &lt;- get_ed_ratings(ed_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "10.7 Create Final Dataset\n\ned_ratings &lt;- get_ed_ratings(ed_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
     ]
@@ -954,7 +954,7 @@
     "href": "dl.html#create-final-dataset",
     "title": "11  DL Rankings",
     "section": "11.7 Create Final Dataset",
-    "text": "11.7 Create Final Dataset\n\ndl_ratings &lt;- get_dl_ratings(dl_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "text": "11.7 Create Final Dataset\n\ndl_ratings &lt;- get_dl_ratings(dl_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) #%&gt;%\n  #mutate(pos_rank_aft = row_number())",
     "crumbs": [
       "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
     ]
