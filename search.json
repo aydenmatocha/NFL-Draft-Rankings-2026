@@ -1,0 +1,1012 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "2026 NFL Draft Rankings",
+    "section": "",
+    "text": "Preface\nTest",
+    "crumbs": [
+      "Preface"
+    ]
+  },
+  {
+    "objectID": "qb.html",
+    "href": "qb.html",
+    "title": "1  QB Rankings",
+    "section": "",
+    "text": "1.1 Packages Needed\nlibrary(tidyverse)\nlibrary(cfbfastR)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#load-play-by-play-data",
+    "href": "qb.html#load-play-by-play-data",
+    "title": "1  QB Rankings",
+    "section": "1.2 Load Play-by-Play Data",
+    "text": "1.2 Load Play-by-Play Data\n\npbp_2025 &lt;- load_cfb_pbp(seasons = 2025) # mean epa/dropback",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#load-qb-players",
+    "href": "qb.html#load-qb-players",
+    "title": "1  QB Rankings",
+    "section": "1.3 Load QB Players",
+    "text": "1.3 Load QB Players\n\nqbs &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"QB\")",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#load-necessary-csv-files",
+    "href": "qb.html#load-necessary-csv-files",
+    "title": "1  QB Rankings",
+    "section": "1.4 Load Necessary CSV Files",
+    "text": "1.4 Load Necessary CSV Files\n\npassing &lt;- read.csv(\"data/qb/passing_summary.csv\") %&gt;% \n  select(player, grades_pass, qb_rating, twp_rate, btt_rate) # pass grade, qb rating, tw%, btt%",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#combine-datasets-and-pull-names",
+    "href": "qb.html#combine-datasets-and-pull-names",
+    "title": "1  QB Rankings",
+    "section": "1.5 Combine Datasets and Pull Names",
+    "text": "1.5 Combine Datasets and Pull Names\n\nqb_values &lt;- qbs %&gt;% \n  left_join(passing, by = c(\"name\" = \"player\")) %&gt;% \n  drop_na()\nqb_names &lt;- qb_values %&gt;% pull(name)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#calculate-mean-epa-and-combine",
+    "href": "qb.html#calculate-mean-epa-and-combine",
+    "title": "1  QB Rankings",
+    "section": "1.6 Calculate Mean EPA and Combine",
+    "text": "1.6 Calculate Mean EPA and Combine\n\npasser_epa &lt;- pbp_2025 %&gt;%\n  filter(pass == 1) %&gt;%\n  group_by(passer_player_name) %&gt;%\n  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %&gt;%\n  filter(!is.na(passer_player_name), passer_player_name %in% qb_names) %&gt;%\n  rename(name = passer_player_name) %&gt;%\n  arrange(-mean_epa)\n\nqb_values &lt;- left_join(qb_values, passer_epa, by = \"name\") %&gt;% select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#get-mean-values-for-testing",
+    "href": "qb.html#get-mean-values-for-testing",
+    "title": "1  QB Rankings",
+    "section": "1.7 Get Mean Values (for testing)",
+    "text": "1.7 Get Mean Values (for testing)\n\nmean(qb_values$grades_pass)\n\n[1] 74.33333\n\nmean(qb_values$qb_rating)\n\n[1] 97\n\nmean(qb_values$twp_rate)\n\n[1] 3.225926\n\nmean(qb_values$btt_rate)\n\n[1] 4.692593\n\nmean(qb_values$mean_epa)\n\n[1] 0.1962222",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#create-rating-function",
+    "href": "qb.html#create-rating-function",
+    "title": "1  QB Rankings",
+    "section": "1.8 Create Rating Function",
+    "text": "1.8 Create Rating Function\n\nget_qb_ratings &lt;- function(input_df) {\n  input_df &lt;- input_df %&gt;% mutate(\n    grades_pass = round(pmax(pmin((grades_pass-70) / 2, 10), 0), 2), # 70-90, mean 80\n    qb_rating = round(pmax(pmin((qb_rating-90) / 3, 10), 0), 2), # 90-120, mean 105\n    twp_rate = round(pmax(pmin(((100-twp_rate)-96) * 5, 10), 0), 2), # 4-2, mean 3\n    btt_rate = round(pmax(pmin((btt_rate-3) * 3.33, 10), 0), 2), # 3-6, mean 4.5\n    mean_epa = round(pmax(pmin((mean_epa) * 33.33, 10), 0), 2), # 0-.3, mean .15\n  )\n  \n  return(input_df)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#create-final-dataset",
+    "href": "qb.html#create-final-dataset",
+    "title": "1  QB Rankings",
+    "section": "1.9 Create Final Dataset",
+    "text": "1.9 Create Final Dataset\n\nqb_ratings &lt;- get_qb_ratings(qb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "qb.html#display-ratings",
+    "href": "qb.html#display-ratings",
+    "title": "1  QB Rankings",
+    "section": "1.10 Display Ratings",
+    "text": "1.10 Display Ratings\n\nDT::datatable(\n  qb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html",
+    "href": "rb.html",
+    "title": "2  RB Rankings",
+    "section": "",
+    "text": "2.1 Packages Needed\nlibrary(tidyverse)\nlibrary(cfbfastR)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#load-play-by-play-data",
+    "href": "rb.html#load-play-by-play-data",
+    "title": "2  RB Rankings",
+    "section": "2.2 Load Play-by-Play Data",
+    "text": "2.2 Load Play-by-Play Data\n\npbp_2025 &lt;- load_cfb_pbp(seasons = 2025) # mean epa/dropback",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#load-rb-players",
+    "href": "rb.html#load-rb-players",
+    "title": "2  RB Rankings",
+    "section": "2.3 Load RB Players",
+    "text": "2.3 Load RB Players\n\nrbs &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"HB\")\nhead(rbs)\n\n                 name     id position       team rank\n1      Jeremiyah Love 171090       HB Notre Dame    3\n2      Jadarian Price 156985       HB Notre Dame   56\n3 Mike Washington Jr. 145672       HB   Arkansas   71\n4       Jonah Coleman 158717       HB Washington   99\n5        Seth McGowan 122936       HB   Kentucky  127\n6      Emmett Johnson 156473       HB   Nebraska  137",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#load-necessary-csv-files",
+    "href": "rb.html#load-necessary-csv-files",
+    "title": "2  RB Rankings",
+    "section": "2.4 Load Necessary CSV Files",
+    "text": "2.4 Load Necessary CSV Files\n\nrushing &lt;- read.csv(\"data/rb/rushing_summary.csv\") %&gt;% \n  select(player_id, grades_run, yco_attempt, attempts, fumbles) # rush grade, yac/attempt, fum%\nreceiving &lt;- read.csv(\"data/receiving_summary.csv\") %&gt;% \n  select(player_id, grades_pass_block, yprr, grades_pass_route) # rec grade, yprr, pb grade",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#combine-datasets-and-pull-names",
+    "href": "rb.html#combine-datasets-and-pull-names",
+    "title": "2  RB Rankings",
+    "section": "2.5 Combine Datasets and Pull Names",
+    "text": "2.5 Combine Datasets and Pull Names\n\nrb_values &lt;- rbs %&gt;% \n  left_join(rushing, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nrb_values &lt;- rb_values %&gt;% \n  left_join(receiving, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nrb_values &lt;- rb_values %&gt;% \n  mutate(fum_p = round((fumbles/attempts)*100, 2)) %&gt;% \n  select(-attempts, -fumbles) %&gt;% # get fum%\n  rename(rush_grade = grades_run, yac_att = yco_attempt, pb_grade = grades_pass_block, rec_grade = grades_pass_route)\nrb_names &lt;- rb_values %&gt;% pull(name)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#calculate-mean-epa-and-combine",
+    "href": "rb.html#calculate-mean-epa-and-combine",
+    "title": "2  RB Rankings",
+    "section": "2.6 Calculate Mean EPA and Combine",
+    "text": "2.6 Calculate Mean EPA and Combine\n\nrusher_epa &lt;- pbp_2025 %&gt;%\n  filter(rush == 1) %&gt;%\n  group_by(rusher_player_name) %&gt;%\n  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %&gt;%\n  filter(!is.na(rusher_player_name), rusher_player_name %in% rb_names) %&gt;%\n  rename(name = rusher_player_name) %&gt;%\n  arrange(-mean_epa)\n\nrb_values &lt;- left_join(rb_values, rusher_epa, by = \"name\") %&gt;% select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#get-mean-values-for-testing",
+    "href": "rb.html#get-mean-values-for-testing",
+    "title": "2  RB Rankings",
+    "section": "2.7 Get Mean Values (for testing)",
+    "text": "2.7 Get Mean Values (for testing)\n\nmean(rb_values$rush_grade)\n\n[1] 78.04571\n\nmean(rb_values$yac_att)\n\n[1] 3.156571\n\nmean(rb_values$pb_grade)\n\n[1] 48.96857\n\nmean(rb_values$yprr)\n\n[1] 0.9597143\n\nmean(rb_values$rec_grade)\n\n[1] 59.48\n\nmean(rb_values$fum_p)\n\n[1] 1.039143\n\nmean(rb_values$mean_epa)\n\n[1] 0.02751429",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#create-rating-function",
+    "href": "rb.html#create-rating-function",
+    "title": "2  RB Rankings",
+    "section": "2.8 Create Rating Function",
+    "text": "2.8 Create Rating Function\n\nget_rb_ratings &lt;- function(input_df) {\n  df_rb_copy &lt;- input_df %&gt;% mutate(\n    rush_grade = round(pmax(pmin((rush_grade-70) / 2, 10), 0), 2), # 70-90, mean 80\n    yac_att = round(pmax(pmin((yac_att-2.5) * 5, 10), 0), 2), # 2.5-4.5, mean 3.5\n    mean_epa = round(pmax(pmin((mean_epa) * 50, 10), 0), 2), # 0-.2, mean .1\n    yprr = round(pmax(pmin((yprr-0.5) * 5, 5), 0), 2), # 0.5-1.5, mean 1, worth 5\n    pb_grade = round(pmax(pmin((pb_grade-35) / 6, 5), 0), 2), # 35-65, mean 50, worth 5\n    rec_grade = round(pmax(pmin((rec_grade-50) / 4, 5), 0), 2), # 50-70, mean 60, worth 5\n    fum_p = round(pmax(pmin(((100-fum_p)-98) * 3.33, 5), 0), 2), # 2-0.5, mean 1.25, worth 5\n  )\n  \n  return(df_rb_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#create-final-dataset",
+    "href": "rb.html#create-final-dataset",
+    "title": "2  RB Rankings",
+    "section": "2.9 Create Final Dataset",
+    "text": "2.9 Create Final Dataset\n\nrb_ratings &lt;- get_rb_ratings(rb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "rb.html#display-ratings",
+    "href": "rb.html#display-ratings",
+    "title": "2  RB Rankings",
+    "section": "2.10 Display Ratings",
+    "text": "2.10 Display Ratings\n\nDT::datatable(\n  rb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html",
+    "href": "wr.html",
+    "title": "3  WR Rankings",
+    "section": "",
+    "text": "3.1 Packages Needed\nlibrary(tidyverse)\nlibrary(cfbfastR)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#load-play-by-play-data",
+    "href": "wr.html#load-play-by-play-data",
+    "title": "3  WR Rankings",
+    "section": "3.2 Load Play-by-Play Data",
+    "text": "3.2 Load Play-by-Play Data\n\npbp_2025 &lt;- load_cfb_pbp(seasons = 2025) # mean epa/target",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#load-wr-players",
+    "href": "wr.html#load-wr-players",
+    "title": "3  WR Rankings",
+    "section": "3.3 Load WR Players",
+    "text": "3.3 Load WR Players\n\nwrs &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"WR\")",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#load-necessary-csv-files",
+    "href": "wr.html#load-necessary-csv-files",
+    "title": "3  WR Rankings",
+    "section": "3.4 Load Necessary CSV Files",
+    "text": "3.4 Load Necessary CSV Files\n\nreceiving &lt;- read.csv(\"data/receiving_summary.csv\") %&gt;% \n  select(player_id, grades_pass_route, yprr, drop_rate, contested_catch_rate) # rec grade, yprr, drop%, contested catch %",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#combine-datasets-and-pull-names",
+    "href": "wr.html#combine-datasets-and-pull-names",
+    "title": "3  WR Rankings",
+    "section": "3.5 Combine Datasets and Pull Names",
+    "text": "3.5 Combine Datasets and Pull Names\n\nwr_values &lt;- wrs %&gt;% \n  left_join(receiving, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nwr_values &lt;- wr_values %&gt;% \n  rename(rec_grade = grades_pass_route, cc_rate = contested_catch_rate)\nwr_names &lt;- wr_values %&gt;% pull(name)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#calculate-mean-epa-and-combine",
+    "href": "wr.html#calculate-mean-epa-and-combine",
+    "title": "3  WR Rankings",
+    "section": "3.6 Calculate Mean EPA and Combine",
+    "text": "3.6 Calculate Mean EPA and Combine\n\nreceiver_epa &lt;- pbp_2025 %&gt;%\n  filter(pass == 1) %&gt;%\n  group_by(receiver_player_name) %&gt;%\n  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %&gt;%\n  filter(!is.na(receiver_player_name), receiver_player_name %in% wr_names) %&gt;%\n  rename(name = receiver_player_name) %&gt;%\n  arrange(-mean_epa)\n\nwr_values &lt;- left_join(wr_values, receiver_epa, by = \"name\") %&gt;% select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#get-mean-values-for-testing",
+    "href": "wr.html#get-mean-values-for-testing",
+    "title": "3  WR Rankings",
+    "section": "3.7 Get Mean Values (for testing)",
+    "text": "3.7 Get Mean Values (for testing)\n\nmean(wr_values$rec_grade)\n\n[1] 73.51746\n\nmean(wr_values$yprr)\n\n[1] 2.052857\n\nmean(wr_values$drop_rate)\n\n[1] 6.566667\n\nmean(wr_values$cc_rate)\n\n[1] 48.31905\n\nmean(wr_values$mean_epa)\n\n[1] 0.5302698",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#create-rating-function",
+    "href": "wr.html#create-rating-function",
+    "title": "3  WR Rankings",
+    "section": "3.8 Create Rating Function",
+    "text": "3.8 Create Rating Function\n\nget_wr_ratings &lt;- function(input_df) {\n  df_wr_copy &lt;- input_df %&gt;% mutate(\n    rec_grade = round(pmax(pmin((rec_grade-60) / 3, 10), 0), 2), # 60-90, mean 75\n    yprr = round(pmax(pmin((yprr-1.5) * 6.67, 10), 0), 2), # 1.5-3, mean 2.25\n    drop_rate = round(pmax(pmin(((100-drop_rate)-88), 10), 0), 2), # 12-2, mean 7\n    cc_rate = round(pmax(pmin((cc_rate-35) / 3, 10), 0), 2), # 35-65, mean 50\n    mean_epa = round(pmax(pmin((mean_epa) * 10, 10), 0), 2), # 0-1, mean .5\n  )\n  \n  return(df_wr_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#create-final-dataset",
+    "href": "wr.html#create-final-dataset",
+    "title": "3  WR Rankings",
+    "section": "3.9 Create Final Dataset",
+    "text": "3.9 Create Final Dataset\n\nwr_ratings &lt;- get_wr_ratings(wr_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "wr.html#display-ratings",
+    "href": "wr.html#display-ratings",
+    "title": "3  WR Rankings",
+    "section": "3.10 Display Ratings",
+    "text": "3.10 Display Ratings\n\nDT::datatable(\n  wr_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html",
+    "href": "te.html",
+    "title": "4  TE Rankings",
+    "section": "",
+    "text": "4.1 Packages Needed\nlibrary(tidyverse)\nlibrary(cfbfastR)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#load-play-by-play-data",
+    "href": "te.html#load-play-by-play-data",
+    "title": "4  TE Rankings",
+    "section": "4.2 Load Play-by-Play Data",
+    "text": "4.2 Load Play-by-Play Data\n\npbp_2025 &lt;- load_cfb_pbp(seasons = 2025) # mean epa/target",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#load-te-players",
+    "href": "te.html#load-te-players",
+    "title": "4  TE Rankings",
+    "section": "4.3 Load TE Players",
+    "text": "4.3 Load TE Players\n\ntes &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"TE\")",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#load-necessary-csv-files",
+    "href": "te.html#load-necessary-csv-files",
+    "title": "4  TE Rankings",
+    "section": "4.4 Load Necessary CSV Files",
+    "text": "4.4 Load Necessary CSV Files\n\nreceiving &lt;- read.csv(\"data/receiving_summary.csv\") %&gt;% \n  select(player_id, grades_pass_route, yprr, drop_rate, contested_catch_rate) # rec grade, yprr, drop%, contested catch %\nblocking &lt;- read.csv(\"data/offense_blocking.csv\") %&gt;% \n  select(player_id, grades_run_block, grades_pass_block) # rb grade, pb grade",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#combine-datasets-and-pull-names",
+    "href": "te.html#combine-datasets-and-pull-names",
+    "title": "4  TE Rankings",
+    "section": "4.5 Combine Datasets and Pull Names",
+    "text": "4.5 Combine Datasets and Pull Names\n\nte_values &lt;- tes %&gt;% \n  left_join(receiving, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nte_values &lt;- te_values %&gt;% \n  left_join(blocking, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nte_values &lt;- te_values %&gt;% \n  rename(rec_grade = grades_pass_route, cc_rate = contested_catch_rate, pb_grade = grades_pass_block, rb_grade = grades_run_block)\nte_names &lt;- te_values %&gt;% pull(name)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#calculate-mean-epa-and-combine",
+    "href": "te.html#calculate-mean-epa-and-combine",
+    "title": "4  TE Rankings",
+    "section": "4.6 Calculate Mean EPA and Combine",
+    "text": "4.6 Calculate Mean EPA and Combine\n\nreceiver_epa &lt;- pbp_2025 %&gt;%\n  filter(pass == 1) %&gt;%\n  group_by(receiver_player_name) %&gt;%\n  summarize(mean_epa = round(mean(EPA, na.rm = TRUE), 3)) %&gt;%\n  filter(!is.na(receiver_player_name), receiver_player_name %in% te_names) %&gt;%\n  rename(name = receiver_player_name) %&gt;%\n  arrange(-mean_epa)\n\nte_values &lt;- left_join(te_values, receiver_epa, by = \"name\") %&gt;% select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#get-mean-values-for-testing",
+    "href": "te.html#get-mean-values-for-testing",
+    "title": "4  TE Rankings",
+    "section": "4.7 Get Mean Values (for testing)",
+    "text": "4.7 Get Mean Values (for testing)\n\nmean(te_values$rec_grade)\n\n[1] 68.24595\n\nmean(te_values$yprr)\n\n[1] 1.577838\n\nmean(te_values$drop_rate)\n\n[1] 5.691892\n\nmean(te_values$cc_rate)\n\n[1] 48.31622\n\nmean(te_values$rb_grade)\n\n[1] 56.71351\n\nmean(te_values$pb_grade)\n\n[1] 66.61351\n\nmean(te_values$mean_epa)\n\n[1] 0.4502973",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#create-rating-function",
+    "href": "te.html#create-rating-function",
+    "title": "4  TE Rankings",
+    "section": "4.8 Create Rating Function",
+    "text": "4.8 Create Rating Function\n\nget_te_ratings &lt;- function(input_df) {\n  df_te_copy &lt;- input_df %&gt;% mutate(\n    rec_grade = round(pmax(pmin((rec_grade-50) / 4, 10), 0), 2), # 50-90, mean 70\n    yprr = round(pmax(pmin((yprr-1) * 6.67, 10), 0), 2), # 1-2.5, mean 1.75\n    rb_grade = round(pmax(pmin((rb_grade-40) / 3, 10), 0), 2), # 40-70, mean 55\n    pb_grade = round(pmax(pmin((pb_grade-55) / 4, 5), 0), 2), # 55-75, mean 65, worth 5\n    drop_rate = round(pmax(pmin(((100-drop_rate)-90) / 1.5, 5), 0), 2), # 10-2.5, mean 6.25, worth 5\n    cc_rate = round(pmax(pmin((cc_rate-35) / 6, 5), 0), 2), # 35-65, mean 50, worth 5\n    mean_epa = round(pmax(pmin((mean_epa) * 5, 5), 0), 2), # 0-1, mean .5, worth 5\n  )\n  \n  return(df_te_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#create-final-dataset",
+    "href": "te.html#create-final-dataset",
+    "title": "4  TE Rankings",
+    "section": "4.9 Create Final Dataset",
+    "text": "4.9 Create Final Dataset\n\nte_ratings &lt;- get_te_ratings(te_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "te.html#display-ratings",
+    "href": "te.html#display-ratings",
+    "title": "4  TE Rankings",
+    "section": "4.10 Display Ratings",
+    "text": "4.10 Display Ratings\n\nDT::datatable(\n  te_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html",
+    "href": "ot.html",
+    "title": "5  OT Rankings",
+    "section": "",
+    "text": "5.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#load-ot-players",
+    "href": "ot.html#load-ot-players",
+    "title": "5  OT Rankings",
+    "section": "5.2 Load OT Players",
+    "text": "5.2 Load OT Players\n\nots &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"T\") %&gt;% mutate(position = \"OT\")",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#load-necessary-csv-files",
+    "href": "ot.html#load-necessary-csv-files",
+    "title": "5  OT Rankings",
+    "section": "5.3 Load Necessary CSV Files",
+    "text": "5.3 Load Necessary CSV Files\n\nblocking &lt;- read.csv(\"data/offense_blocking.csv\") %&gt;% \n  select(player_id, grades_pass_block, grades_run_block, pbe) # pb grade, rb grade, pbe\nrun_blocking &lt;- read.csv(\"data/ol/offense_run_blocking.csv\") %&gt;% \n  select(player_id, zone_grades_run_block, gap_grades_run_block) # zone grade, gap grade",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#combine-datasets",
+    "href": "ot.html#combine-datasets",
+    "title": "5  OT Rankings",
+    "section": "5.4 Combine Datasets",
+    "text": "5.4 Combine Datasets\n\not_values &lt;- ots %&gt;% \n  left_join(blocking, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\not_values &lt;- ot_values %&gt;% \n  left_join(run_blocking, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\not_values &lt;- ot_values %&gt;% \n  rename(pb_grade = grades_pass_block, rb_grade = grades_run_block, zone_grade = zone_grades_run_block, gap_grade = gap_grades_run_block) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#get-mean-values-for-testing",
+    "href": "ot.html#get-mean-values-for-testing",
+    "title": "5  OT Rankings",
+    "section": "5.5 Get Mean Values (for testing)",
+    "text": "5.5 Get Mean Values (for testing)\n\nmean(ot_values$pb_grade)\n\n[1] 74.32162\n\nmean(ot_values$rb_grade)\n\n[1] 69.44595\n\nmean(ot_values$pbe)\n\n[1] 97.64865\n\nmean(ot_values$zone_grade)\n\n[1] 70.6027\n\nmean(ot_values$gap_grade)\n\n[1] 63.07027",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#create-rating-function",
+    "href": "ot.html#create-rating-function",
+    "title": "5  OT Rankings",
+    "section": "5.6 Create Rating Function",
+    "text": "5.6 Create Rating Function\n\nget_ot_ratings &lt;- function(input_df) {\n  df_ot_copy &lt;- input_df %&gt;% mutate(\n    pb_grade = round(pmax(pmin((pb_grade-65) / 2, 10), 0), 2), # 65-85, mean 75\n    rb_grade = round(pmax(pmin((rb_grade-65) / 2, 10), 0), 2),  # 65-85, mean 75\n    pbe = round(pmax(pmin((pbe-95) * 2.5, 10), 0), 2), # 95-99, mean 97\n    zone_grade = round(pmax(pmin((zone_grade-65) / 2, 10), 0), 2), # 65-85, mean 75\n    gap_grade = round(pmax(pmin((gap_grade-55) / 2, 10), 0), 2), # 55-75, mean 65\n  )\n  \n  return(df_ot_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#create-final-dataset",
+    "href": "ot.html#create-final-dataset",
+    "title": "5  OT Rankings",
+    "section": "5.7 Create Final Dataset",
+    "text": "5.7 Create Final Dataset\n\not_ratings &lt;- get_ot_ratings(ot_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ot.html#display-ratings",
+    "href": "ot.html#display-ratings",
+    "title": "5  OT Rankings",
+    "section": "5.8 Display Ratings",
+    "text": "5.8 Display Ratings\n\nDT::datatable(\n  ot_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html",
+    "href": "iol.html",
+    "title": "6  IOL Rankings",
+    "section": "",
+    "text": "6.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#load-iol-players",
+    "href": "iol.html#load-iol-players",
+    "title": "6  IOL Rankings",
+    "section": "6.2 Load IOL Players",
+    "text": "6.2 Load IOL Players\n\niols &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"G\" | position == \"C\")",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#load-necessary-csv-files",
+    "href": "iol.html#load-necessary-csv-files",
+    "title": "6  IOL Rankings",
+    "section": "6.3 Load Necessary CSV Files",
+    "text": "6.3 Load Necessary CSV Files\n\nblocking &lt;- read.csv(\"data/offense_blocking.csv\") %&gt;% \n  select(player_id, grades_pass_block, grades_run_block, pbe) # pb grade, rb grade, pbe\nrun_blocking &lt;- read.csv(\"data/ol/offense_run_blocking.csv\") %&gt;% \n  select(player_id, zone_grades_run_block, gap_grades_run_block) # zone grade, gap grade",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#combine-datasets",
+    "href": "iol.html#combine-datasets",
+    "title": "6  IOL Rankings",
+    "section": "6.4 Combine Datasets",
+    "text": "6.4 Combine Datasets\n\niol_values &lt;- iols %&gt;% \n  left_join(blocking, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\niol_values &lt;- iol_values %&gt;% \n  left_join(run_blocking, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\niol_values &lt;- iol_values %&gt;% \n  rename(pb_grade = grades_pass_block, rb_grade = grades_run_block, zone_grade = zone_grades_run_block, gap_grade = gap_grades_run_block) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#get-mean-values-for-testing",
+    "href": "iol.html#get-mean-values-for-testing",
+    "title": "6  IOL Rankings",
+    "section": "6.5 Get Mean Values (for testing)",
+    "text": "6.5 Get Mean Values (for testing)\n\nmean(iol_values$pb_grade)\n\n[1] 76.06596\n\nmean(iol_values$rb_grade)\n\n[1] 68.56383\n\nmean(iol_values$pbe)\n\n[1] 98.54043\n\nmean(iol_values$zone_grade)\n\n[1] 69.59149\n\nmean(iol_values$gap_grade)\n\n[1] 63.51064",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#create-rating-function",
+    "href": "iol.html#create-rating-function",
+    "title": "6  IOL Rankings",
+    "section": "6.6 Create Rating Function",
+    "text": "6.6 Create Rating Function\n\nget_iol_ratings &lt;- function(input_df) {\n  df_iol_copy &lt;- input_df %&gt;% mutate(\n    pb_grade = round(pmax(pmin((pb_grade-65) / 2, 10), 0), 2), # 65-85, mean 75\n    rb_grade = round(pmax(pmin((rb_grade-65) / 2, 10), 0), 2),  # 65-85, mean 75\n    pbe = round(pmax(pmin((pbe-95) * 2.5, 10), 0), 2), # 95-99, mean 97\n    zone_grade = round(pmax(pmin((zone_grade-65) / 2, 10), 0), 2), # 65-85, mean 75\n    gap_grade = round(pmax(pmin((gap_grade-55) / 2, 10), 0), 2), # 55-75, mean 65\n  )\n  \n  return(df_iol_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#create-final-dataset",
+    "href": "iol.html#create-final-dataset",
+    "title": "6  IOL Rankings",
+    "section": "6.7 Create Final Dataset",
+    "text": "6.7 Create Final Dataset\n\niol_ratings &lt;- get_iol_ratings(iol_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "iol.html#display-ratings",
+    "href": "iol.html#display-ratings",
+    "title": "6  IOL Rankings",
+    "section": "6.8 Display Ratings",
+    "text": "6.8 Display Ratings\n\nDT::datatable(\n  iol_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html",
+    "href": "lb.html",
+    "title": "7  LB Rankings",
+    "section": "",
+    "text": "7.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#load-lb-players",
+    "href": "lb.html#load-lb-players",
+    "title": "7  LB Rankings",
+    "section": "7.2 Load LB Players",
+    "text": "7.2 Load LB Players\n\nlbs &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"LB\")",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#load-necessary-csv-files",
+    "href": "lb.html#load-necessary-csv-files",
+    "title": "7  LB Rankings",
+    "section": "7.3 Load Necessary CSV Files",
+    "text": "7.3 Load Necessary CSV Files\n\ndefense &lt;- read.csv(\"data/defense_summary.csv\") %&gt;% \n  select(player_id, grades_run_defense, grades_pass_rush_defense, grades_coverage_defense, missed_tackle_rate, qb_rating_against) # rdef grade, prsh grade, cov grade, miss %, pass_rtg\nrun_defense &lt;- read.csv(\"data/run_defense_summary.csv\") %&gt;% \n  select(player_id, stop_percent) # run stop %",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#combine-datasets",
+    "href": "lb.html#combine-datasets",
+    "title": "7  LB Rankings",
+    "section": "7.4 Combine Datasets",
+    "text": "7.4 Combine Datasets\n\nlb_values &lt;- lbs %&gt;% \n  left_join(defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nlb_values &lt;- lb_values %&gt;% \n  left_join(run_defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\nlb_values &lt;- lb_values %&gt;% \n  rename(rdef_grade = grades_run_defense, prsh_grade = grades_pass_rush_defense, cov_grade = grades_coverage_defense, miss_p = missed_tackle_rate, pass_rtg = qb_rating_against, run_stop_p = stop_percent) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#get-mean-values-for-testing",
+    "href": "lb.html#get-mean-values-for-testing",
+    "title": "7  LB Rankings",
+    "section": "7.5 Get Mean Values (for testing)",
+    "text": "7.5 Get Mean Values (for testing)\n\nmean(lb_values$rdef_grade)\n\n[1] 75.69091\n\nmean(lb_values$prsh_grade)\n\n[1] 68.42121\n\nmean(lb_values$cov_grade)\n\n[1] 65.35758\n\nmean(lb_values$miss_p)\n\n[1] 12.77879\n\nmean(lb_values$pass_rtg)\n\n[1] 90.22727\n\nmean(lb_values$run_stop_p)\n\n[1] 8.518182",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#create-rating-function",
+    "href": "lb.html#create-rating-function",
+    "title": "7  LB Rankings",
+    "section": "7.6 Create Rating Function",
+    "text": "7.6 Create Rating Function\n\nget_lb_ratings &lt;- function(input_df) {\n  df_lb_copy &lt;- input_df %&gt;% mutate(\n    rdef_grade = round(pmax(pmin((rdef_grade-65) / 2, 10), 0), 2), # 65-85, mean 75\n    prsh_grade = round(pmax(pmin((prsh_grade-60) / 2, 10), 0), 2),  # 60-80, mean 70\n    cov_grade = round(pmax(pmin((cov_grade-50) / 3, 10), 0), 2), # 50-80, mean 65\n    miss_p = round(pmax(pmin(((100-miss_p)-83) / 1.2, 10), 0), 2), # 17-5, mean 11\n    pass_rtg = round(pmax(pmin(((200-pass_rtg)-80) / 10, 5), 0), 2), # 120-70, mean 95, worth 5\n    run_stop_p = round(pmax(pmin((run_stop_p-6), 5), 0), 2), # 6-11, mean 8.5, worth 5\n  )\n  \n  return(df_lb_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#create-final-dataset",
+    "href": "lb.html#create-final-dataset",
+    "title": "7  LB Rankings",
+    "section": "7.7 Create Final Dataset",
+    "text": "7.7 Create Final Dataset\n\nlb_ratings &lt;- get_lb_ratings(lb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "lb.html#display-ratings",
+    "href": "lb.html#display-ratings",
+    "title": "7  LB Rankings",
+    "section": "7.8 Display Ratings",
+    "text": "7.8 Display Ratings\n\nDT::datatable(\n  lb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html",
+    "href": "cb.html",
+    "title": "8  CB Rankings",
+    "section": "",
+    "text": "8.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#load-cb-players",
+    "href": "cb.html#load-cb-players",
+    "title": "8  CB Rankings",
+    "section": "8.2 Load CB Players",
+    "text": "8.2 Load CB Players\n\ncbs &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"CB\")",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#load-necessary-csv-files",
+    "href": "cb.html#load-necessary-csv-files",
+    "title": "8  CB Rankings",
+    "section": "8.3 Load Necessary CSV Files",
+    "text": "8.3 Load Necessary CSV Files\n\ndefense &lt;- read.csv(\"data/defense_summary.csv\") %&gt;% \n  select(player_id, missed_tackle_rate, qb_rating_against, catch_rate) # miss %, pass_rtg, comp %\ncov_defense &lt;- read.csv(\"data/defense_coverage_scheme.csv\") %&gt;% \n  select(player_id, man_grades_coverage_defense, zone_grades_coverage_defense) # man_grade, zone_grade",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#combine-datasets",
+    "href": "cb.html#combine-datasets",
+    "title": "8  CB Rankings",
+    "section": "8.4 Combine Datasets",
+    "text": "8.4 Combine Datasets\n\ncb_values &lt;- cbs %&gt;% \n  left_join(defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ncb_values &lt;- cb_values %&gt;% \n  left_join(cov_defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ncb_values &lt;- cb_values %&gt;% \n  rename(miss_p = missed_tackle_rate, pass_rtg = qb_rating_against, comp_p = catch_rate, man_grade = man_grades_coverage_defense, zone_grade = zone_grades_coverage_defense) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#get-mean-values-for-testing",
+    "href": "cb.html#get-mean-values-for-testing",
+    "title": "8  CB Rankings",
+    "section": "8.5 Get Mean Values (for testing)",
+    "text": "8.5 Get Mean Values (for testing)\n\nmean(cb_values$miss_p)\n\n[1] 11.43256\n\nmean(cb_values$pass_rtg)\n\n[1] 75.34651\n\nmean(cb_values$comp_p)\n\n[1] 55.19302\n\nmean(cb_values$man_grade)\n\n[1] 66.14884\n\nmean(cb_values$zone_grade)\n\n[1] 71.61395",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#create-rating-function",
+    "href": "cb.html#create-rating-function",
+    "title": "8  CB Rankings",
+    "section": "8.6 Create Rating Function",
+    "text": "8.6 Create Rating Function\n\nget_cb_ratings &lt;- function(input_df) {\n  df_cb_copy &lt;- input_df %&gt;% mutate(\n    man_grade = round(pmax(pmin((man_grade-55) / 3, 10), 0), 2),  # 55-85, mean 70\n    zone_grade = round(pmax(pmin((zone_grade-55) / 3, 10), 0), 2), # 55-85, mean 70\n    comp_p = round(pmax(pmin(((100-comp_p)-25)/4, 10), 0), 2), # 75-35, mean 55\n    pass_rtg = round(pmax(pmin(((200-pass_rtg)-100)/6, 10), 0), 2), # 100-40, mean 70\n    miss_p = round(pmax(pmin(((100-miss_p)-80)/1.5, 10), 0), 2), # 20-5, mean 12.5\n  )\n  \n  return(df_cb_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#create-final-dataset",
+    "href": "cb.html#create-final-dataset",
+    "title": "8  CB Rankings",
+    "section": "8.7 Create Final Dataset",
+    "text": "8.7 Create Final Dataset\n\ncb_ratings &lt;- get_cb_ratings(cb_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "cb.html#display-ratings",
+    "href": "cb.html#display-ratings",
+    "title": "8  CB Rankings",
+    "section": "8.8 Display Ratings",
+    "text": "8.8 Display Ratings\n\nDT::datatable(\n  cb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html",
+    "href": "s.html",
+    "title": "9  S Rankings",
+    "section": "",
+    "text": "9.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#load-s-players",
+    "href": "s.html#load-s-players",
+    "title": "9  S Rankings",
+    "section": "9.2 Load S Players",
+    "text": "9.2 Load S Players\n\nsafs &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"S\")",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#load-necessary-csv-files",
+    "href": "s.html#load-necessary-csv-files",
+    "title": "9  S Rankings",
+    "section": "9.3 Load Necessary CSV Files",
+    "text": "9.3 Load Necessary CSV Files\n\ndefense &lt;- read.csv(\"data/defense_summary.csv\") %&gt;% \n  select(player_id, missed_tackle_rate, qb_rating_against, grades_run_defense) # miss %, pass_rtg, rdef_grade\ncov_defense &lt;- read.csv(\"data/defense_coverage_scheme.csv\") %&gt;% \n  select(player_id, man_grades_coverage_defense, zone_grades_coverage_defense) # man_grade, zone_grade",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#combine-datasets",
+    "href": "s.html#combine-datasets",
+    "title": "9  S Rankings",
+    "section": "9.4 Combine Datasets",
+    "text": "9.4 Combine Datasets\n\ns_values &lt;- safs %&gt;% \n  left_join(defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ns_values &lt;- s_values %&gt;% \n  left_join(cov_defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ns_values &lt;- s_values %&gt;% \n  rename(miss_p = missed_tackle_rate, pass_rtg = qb_rating_against, man_grade = man_grades_coverage_defense, zone_grade = zone_grades_coverage_defense, rdef_grade = grades_run_defense) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#get-mean-values-for-testing",
+    "href": "s.html#get-mean-values-for-testing",
+    "title": "9  S Rankings",
+    "section": "9.5 Get Mean Values (for testing)",
+    "text": "9.5 Get Mean Values (for testing)\n\nmean(s_values$miss_p)\n\n[1] 13.60645\n\nmean(s_values$pass_rtg)\n\n[1] 78.57097\n\nmean(s_values$rdef_grade)\n\n[1] 73.85806\n\nmean(s_values$man_grade)\n\n[1] 68.90968\n\nmean(s_values$zone_grade)\n\n[1] 72.45161",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#create-rating-function",
+    "href": "s.html#create-rating-function",
+    "title": "9  S Rankings",
+    "section": "9.6 Create Rating Function",
+    "text": "9.6 Create Rating Function\n\nget_s_ratings &lt;- function(input_df) {\n  df_s_copy &lt;- input_df %&gt;% mutate(\n    man_grade = round(pmax(pmin((man_grade-55) / 3, 10), 0), 2),  # 55-85, mean 70\n    zone_grade = round(pmax(pmin((zone_grade-55) / 3, 10), 0), 2), # 55-85, mean 70\n    rdef_grade = round(pmax(pmin((rdef_grade-60) / 2.5, 10), 0), 2), # 60-85, mean 72.5\n    miss_p = round(pmax(pmin(((100-miss_p)-82), 10), 0), 2), # 18-8, mean 13\n    pass_rtg = round(pmax(pmin(((200-pass_rtg)-80) / 6, 10), 0), 2), # 120-60, mean 85\n  )\n  \n  return(df_s_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#create-final-dataset",
+    "href": "s.html#create-final-dataset",
+    "title": "9  S Rankings",
+    "section": "9.7 Create Final Dataset",
+    "text": "9.7 Create Final Dataset\n\ns_ratings &lt;- get_s_ratings(s_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "s.html#display-ratings",
+    "href": "s.html#display-ratings",
+    "title": "9  S Rankings",
+    "section": "9.8 Display Ratings",
+    "text": "9.8 Display Ratings\n\nDT::datatable(\n  s_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html",
+    "href": "ed.html",
+    "title": "10  ED Rankings",
+    "section": "",
+    "text": "10.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#load-ed-players",
+    "href": "ed.html#load-ed-players",
+    "title": "10  ED Rankings",
+    "section": "10.2 Load ED Players",
+    "text": "10.2 Load ED Players\n\neds &lt;- read.csv(\"data/players.csv\") %&gt;% filter(position == \"ED\")",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#load-necessary-csv-files",
+    "href": "ed.html#load-necessary-csv-files",
+    "title": "10  ED Rankings",
+    "section": "10.3 Load Necessary CSV Files",
+    "text": "10.3 Load Necessary CSV Files\n\ndefense &lt;- read.csv(\"data/defense_summary.csv\") %&gt;% \n  select(player_id, missed_tackle_rate, grades_pass_rush_defense, grades_run_defense) # miss %, prsh_grade, rdef_grade\nprsh_defense &lt;- read.csv(\"data/pass_rush_summary.csv\") %&gt;% select(player_id, pass_rush_win_rate, prp) # prsh_win_p, prp\nrun_defense &lt;- read.csv(\"data/run_defense_summary.csv\") %&gt;% select(player_id, stop_percent) # run_stop_p",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#combine-datasets",
+    "href": "ed.html#combine-datasets",
+    "title": "10  ED Rankings",
+    "section": "10.4 Combine Datasets",
+    "text": "10.4 Combine Datasets\n\ned_values &lt;- eds %&gt;% \n  left_join(defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ned_values &lt;- ed_values %&gt;% \n  left_join(prsh_defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ned_values &lt;- ed_values %&gt;% left_join(run_defense, by = c(\"id\" = \"player_id\")) %&gt;% drop_na()\ned_values &lt;- ed_values %&gt;% \n  rename(miss_p = missed_tackle_rate, rdef_grade = grades_run_defense, prsh_grade = grades_pass_rush_defense, prsh_win_p = pass_rush_win_rate, run_stop_p = stop_percent) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#get-mean-values-for-testing",
+    "href": "ed.html#get-mean-values-for-testing",
+    "title": "10  ED Rankings",
+    "section": "10.5 Get Mean Values (for testing)",
+    "text": "10.5 Get Mean Values (for testing)\n\nmean(ed_values$miss_p)\n\n[1] 17.51064\n\nmean(ed_values$rdef_grade)\n\n[1] 73.05532\n\nmean(ed_values$prsh_grade)\n\n[1] 77.98723\n\nmean(ed_values$prsh_win_p)\n\n[1] 15.51915\n\nmean(ed_values$prp)\n\n[1] 8.408511\n\nmean(ed_values$run_stop_p)\n\n[1] 6.940426",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#create-rating-function",
+    "href": "ed.html#create-rating-function",
+    "title": "10  ED Rankings",
+    "section": "10.6 Create Rating Function",
+    "text": "10.6 Create Rating Function\n\nget_ed_ratings &lt;- function(input_df) {\n  df_ed_copy &lt;- input_df %&gt;% mutate(\n    prsh_grade = round(pmax(pmin((prsh_grade-70) / 2, 10), 0), 2),  # 70-90, mean 80\n    rdef_grade = round(pmax(pmin((rdef_grade-65) / 2, 10), 0), 2), # 65-85, mean 75\n    prsh_win_p = round(pmax(pmin((prsh_win_p-10), 10), 0), 2), # 10-20, mean 15\n    run_stop_p = round(pmax(pmin((run_stop_p-4)*2, 10), 0), 2), # 4-9, mean 6.5\n    prp = round(pmax(pmin((prp-6)/1.2, 5), 0), 2), # 6-12, mean 9, worth 5\n    miss_p = round(pmax(pmin(((100-miss_p)-75) / 3, 5), 0), 2), # 25-10, mean 17.5, worth 5\n  )\n  \n  return(df_ed_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#create-final-dataset",
+    "href": "ed.html#create-final-dataset",
+    "title": "10  ED Rankings",
+    "section": "10.7 Create Final Dataset",
+    "text": "10.7 Create Final Dataset\n\ned_ratings &lt;- get_ed_ratings(ed_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "ed.html#display-ratings",
+    "href": "ed.html#display-ratings",
+    "title": "10  ED Rankings",
+    "section": "10.8 Display Ratings",
+    "text": "10.8 Display Ratings\n\nDT::datatable(\n  ed_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html",
+    "href": "dl.html",
+    "title": "11  DL Rankings",
+    "section": "",
+    "text": "11.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#load-dl-players",
+    "href": "dl.html#load-dl-players",
+    "title": "11  DL Rankings",
+    "section": "11.2 Load DL Players",
+    "text": "11.2 Load DL Players\n\ndls &lt;- read.csv(\"data/players.csv\") %&gt;% \n  filter(position == \"DI\")",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#load-necessary-csv-files",
+    "href": "dl.html#load-necessary-csv-files",
+    "title": "11  DL Rankings",
+    "section": "11.3 Load Necessary CSV Files",
+    "text": "11.3 Load Necessary CSV Files\n\ndefense &lt;- read.csv(\"data/defense_summary.csv\") %&gt;% \n  select(player_id, missed_tackle_rate, grades_pass_rush_defense, grades_run_defense) # miss %, prsh_grade, rdef_grade\nprsh_defense &lt;- read.csv(\"data/pass_rush_summary.csv\") %&gt;% \n  select(player_id, pass_rush_win_rate, prp) # prsh_win_p, prp\nrun_defense &lt;- read.csv(\"data/run_defense_summary.csv\") %&gt;% \n  select(player_id, stop_percent) # run_stop_p",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#combine-datasets",
+    "href": "dl.html#combine-datasets",
+    "title": "11  DL Rankings",
+    "section": "11.4 Combine Datasets",
+    "text": "11.4 Combine Datasets\n\ndl_values &lt;- dls %&gt;% \n  left_join(defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ndl_values &lt;- dl_values %&gt;% \n  left_join(prsh_defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ndl_values &lt;- dl_values %&gt;% \n  left_join(run_defense, by = c(\"id\" = \"player_id\")) %&gt;% \n  drop_na()\ndl_values &lt;- dl_values %&gt;% \n  rename(miss_p = missed_tackle_rate, rdef_grade = grades_run_defense, prsh_grade = grades_pass_rush_defense, prsh_win_p = pass_rush_win_rate, run_stop_p = stop_percent) %&gt;%\n  select(-id)",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#get-mean-values-for-testing",
+    "href": "dl.html#get-mean-values-for-testing",
+    "title": "11  DL Rankings",
+    "section": "11.5 Get Mean Values (for testing)",
+    "text": "11.5 Get Mean Values (for testing)\n\nmean(dl_values$miss_p)\n\n[1] 13.46\n\nmean(dl_values$rdef_grade)\n\n[1] 74.85714\n\nmean(dl_values$prsh_grade)\n\n[1] 66.01143\n\nmean(dl_values$prsh_win_p)\n\n[1] 7.088571\n\nmean(dl_values$prp)\n\n[1] 3.768571\n\nmean(dl_values$run_stop_p)\n\n[1] 7.605714",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#create-rating-function",
+    "href": "dl.html#create-rating-function",
+    "title": "11  DL Rankings",
+    "section": "11.6 Create Rating Function",
+    "text": "11.6 Create Rating Function\n\nget_dl_ratings &lt;- function(input_df) {\n  df_dl_copy &lt;- input_df %&gt;% mutate(\n    prsh_grade = round(pmax(pmin((prsh_grade-60) / 2, 10), 0), 2),  # 60-80, mean 70\n    rdef_grade = round(pmax(pmin((rdef_grade-60) / 3, 10), 0), 2), # 60-90, mean 75\n    prsh_win_p = round(pmax(pmin((prsh_win_p-4)*1.25, 10), 0), 2), # 4-12, mean 8\n    run_stop_p = round(pmax(pmin((run_stop_p-4)*1.67, 10), 0), 2), # 4-10, mean 7\n    prp = round(pmax(pmin((prp-2), 5), 0), 2), # 2-7, mean 4.5, worth 5\n    miss_p = round(pmax(pmin(((100-miss_p)-82) / 1.8, 5), 0), 2), # 18-9, mean 13.5, worth 5\n  )\n  \n  return(df_dl_copy)\n}",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#create-final-dataset",
+    "href": "dl.html#create-final-dataset",
+    "title": "11  DL Rankings",
+    "section": "11.7 Create Final Dataset",
+    "text": "11.7 Create Final Dataset\n\ndl_ratings &lt;- get_dl_ratings(dl_values) %&gt;% \n  mutate(total = rowSums(select(.,-name, -position, -team, -rank))) %&gt;% \n  arrange(-total) %&gt;%\n  mutate(pos_rank_aft = row_number())",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "dl.html#display-ratings",
+    "href": "dl.html#display-ratings",
+    "title": "11  DL Rankings",
+    "section": "11.8 Display Ratings",
+    "text": "11.8 Display Ratings\n\nDT::datatable(\n  dl_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "crumbs": [
+      "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html",
+    "href": "final.html",
+    "title": "12  Final Rankings",
+    "section": "",
+    "text": "12.1 Packages Needed\nlibrary(tidyverse)\nlibrary(DT)",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html#load-position-rankings",
+    "href": "final.html#load-position-rankings",
+    "title": "12  Final Rankings",
+    "section": "12.2 Load Position Rankings",
+    "text": "12.2 Load Position Rankings\n\nqb &lt;- read.csv(\"data/rankings/qb.csv\")\nrb &lt;- read.csv(\"data/rankings/rb.csv\")\nwr &lt;- read.csv(\"data/rankings/wr.csv\")\nte &lt;- read.csv(\"data/rankings/te.csv\")\not &lt;- read.csv(\"data/rankings/ot.csv\")\niol &lt;- read.csv(\"data/rankings/iol.csv\")\nlb &lt;- read.csv(\"data/rankings/lb.csv\")\ncb &lt;- read.csv(\"data/rankings/cb.csv\")\ns &lt;- read.csv(\"data/rankings/s.csv\")\ned &lt;- read.csv(\"data/rankings/ed.csv\")\ndl &lt;- read.csv(\"data/rankings/dl.csv\")",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html#combine-rankings",
+    "href": "final.html#combine-rankings",
+    "title": "12  Final Rankings",
+    "section": "12.3 Combine Rankings",
+    "text": "12.3 Combine Rankings\n\nfinal_rankings &lt;- bind_rows(qb, rb, wr, te, ot, iol, lb, cb, s, ed, dl) %&gt;%\n  arrange(-total)",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  },
+  {
+    "objectID": "final.html#display-final-rankings",
+    "href": "final.html#display-final-rankings",
+    "title": "12  Final Rankings",
+    "section": "12.4 Display Final Rankings",
+    "text": "12.4 Display Final Rankings\n\ndatatable(final_rankings)",
+    "crumbs": [
+      "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
+    ]
+  }
+]
