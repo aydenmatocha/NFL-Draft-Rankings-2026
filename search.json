@@ -4,7 +4,7 @@
     "href": "index.html",
     "title": "2026 NFL Draft Rankings",
     "section": "",
-    "text": "Preface\nTest",
+    "text": "Preface\nWelcome to my 2026 NFL Draft prospect rankings! To the left, you can find the rankings for a position and a rating for players at that position, as well as the combined final rankings. I used PFF’s big board for my initial rankings and calculated a grade from different variables to get a final rating. See the chapter on the position for more details.",
     "crumbs": [
       "Preface"
     ]
@@ -104,7 +104,7 @@
     "href": "qb.html#display-ratings",
     "title": "1  QB Rankings",
     "section": "1.10 Display Ratings",
-    "text": "1.10 Display Ratings\n\nDT::datatable(\n  qb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "1.10 Display Ratings\n\ndatatable(qb_ratings)",
     "crumbs": [
       "<span class='chapter-number'>1</span>  <span class='chapter-title'>QB Rankings</span>"
     ]
@@ -204,7 +204,7 @@
     "href": "rb.html#display-ratings",
     "title": "2  RB Rankings",
     "section": "2.10 Display Ratings",
-    "text": "2.10 Display Ratings\n\nDT::datatable(\n  rb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "2.10 Display Ratings\n\ndatatable(rb_ratings)",
     "crumbs": [
       "<span class='chapter-number'>2</span>  <span class='chapter-title'>RB Rankings</span>"
     ]
@@ -304,7 +304,7 @@
     "href": "wr.html#display-ratings",
     "title": "3  WR Rankings",
     "section": "3.10 Display Ratings",
-    "text": "3.10 Display Ratings\n\nDT::datatable(\n  wr_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "3.10 Display Ratings\n\ndatatable(wr_ratings)",
     "crumbs": [
       "<span class='chapter-number'>3</span>  <span class='chapter-title'>WR Rankings</span>"
     ]
@@ -404,7 +404,7 @@
     "href": "te.html#display-ratings",
     "title": "4  TE Rankings",
     "section": "4.10 Display Ratings",
-    "text": "4.10 Display Ratings\n\nDT::datatable(\n  te_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "4.10 Display Ratings\n\ndatatable(te_ratings)",
     "crumbs": [
       "<span class='chapter-number'>4</span>  <span class='chapter-title'>TE Rankings</span>"
     ]
@@ -484,7 +484,7 @@
     "href": "ot.html#display-ratings",
     "title": "5  OT Rankings",
     "section": "5.8 Display Ratings",
-    "text": "5.8 Display Ratings\n\nDT::datatable(\n  ot_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "5.8 Display Ratings\n\ndatatable(ot_ratings)",
     "crumbs": [
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>OT Rankings</span>"
     ]
@@ -564,7 +564,7 @@
     "href": "iol.html#display-ratings",
     "title": "6  IOL Rankings",
     "section": "6.8 Display Ratings",
-    "text": "6.8 Display Ratings\n\nDT::datatable(\n  iol_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "6.8 Display Ratings\n\ndatatable(iol_ratings)",
     "crumbs": [
       "<span class='chapter-number'>6</span>  <span class='chapter-title'>IOL Rankings</span>"
     ]
@@ -644,7 +644,7 @@
     "href": "lb.html#display-ratings",
     "title": "7  LB Rankings",
     "section": "7.8 Display Ratings",
-    "text": "7.8 Display Ratings\n\nDT::datatable(\n  lb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "7.8 Display Ratings\n\ndatatable(lb_ratings)",
     "crumbs": [
       "<span class='chapter-number'>7</span>  <span class='chapter-title'>LB Rankings</span>"
     ]
@@ -724,7 +724,7 @@
     "href": "cb.html#display-ratings",
     "title": "8  CB Rankings",
     "section": "8.8 Display Ratings",
-    "text": "8.8 Display Ratings\n\nDT::datatable(\n  cb_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "8.8 Display Ratings\n\ndatatable(cb_ratings)",
     "crumbs": [
       "<span class='chapter-number'>8</span>  <span class='chapter-title'>CB Rankings</span>"
     ]
@@ -804,7 +804,7 @@
     "href": "s.html#display-ratings",
     "title": "9  S Rankings",
     "section": "9.8 Display Ratings",
-    "text": "9.8 Display Ratings\n\nDT::datatable(\n  s_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "9.8 Display Ratings\n\ndatatable(s_ratings)",
     "crumbs": [
       "<span class='chapter-number'>9</span>  <span class='chapter-title'>S Rankings</span>"
     ]
@@ -884,7 +884,7 @@
     "href": "ed.html#display-ratings",
     "title": "10  ED Rankings",
     "section": "10.8 Display Ratings",
-    "text": "10.8 Display Ratings\n\nDT::datatable(\n  ed_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "10.8 Display Ratings\n\ndatatable(ed_ratings)",
     "crumbs": [
       "<span class='chapter-number'>10</span>  <span class='chapter-title'>ED Rankings</span>"
     ]
@@ -964,7 +964,7 @@
     "href": "dl.html#display-ratings",
     "title": "11  DL Rankings",
     "section": "11.8 Display Ratings",
-    "text": "11.8 Display Ratings\n\nDT::datatable(\n  dl_ratings,\n  options = list(\n    scrollX = TRUE,\n    autoWidth = TRUE\n  ),\n  class = \"compact stripe hover\",\n  fillContainer = FALSE\n)",
+    "text": "11.8 Display Ratings\n\ndatatable(dl_ratings)",
     "crumbs": [
       "<span class='chapter-number'>11</span>  <span class='chapter-title'>DL Rankings</span>"
     ]
@@ -994,7 +994,7 @@
     "href": "final.html#combine-rankings",
     "title": "12  Final Rankings",
     "section": "12.3 Combine Rankings",
-    "text": "12.3 Combine Rankings\n\nfinal_rankings &lt;- bind_rows(qb, rb, wr, te, ot, iol, lb, cb, s, ed, dl) %&gt;%\n  arrange(-total)",
+    "text": "12.3 Combine Rankings\n\nfinal_rankings &lt;- bind_rows(qb, rb, wr, te, ot, iol, lb, cb, s, ed, dl) %&gt;%\n  arrange(-total) %&gt;%\n  mutate(rank_aft = row_number()) %&gt;%\n  mutate(rank_diff = rank - rank_aft)",
     "crumbs": [
       "<span class='chapter-number'>12</span>  <span class='chapter-title'>Final Rankings</span>"
     ]
