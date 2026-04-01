@@ -67,15 +67,7 @@ ot_ratings <- get_ot_ratings(ot_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  ot_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(ot_ratings)
 ```
 
 ```{r echo=FALSE}

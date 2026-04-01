@@ -70,15 +70,7 @@ ed_ratings <- get_ed_ratings(ed_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  ed_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(ed_ratings)
 ```
 
 ```{r echo=FALSE}

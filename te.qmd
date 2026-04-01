@@ -90,15 +90,7 @@ te_ratings <- get_te_ratings(te_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  te_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(te_ratings)
 ```
 
 ```{r echo=FALSE}

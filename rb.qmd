@@ -93,15 +93,7 @@ rb_ratings <- get_rb_ratings(rb_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  rb_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(rb_ratings)
 ```
 
 ```{r echo=FALSE}

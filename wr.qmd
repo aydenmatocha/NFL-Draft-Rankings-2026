@@ -81,15 +81,7 @@ wr_ratings <- get_wr_ratings(wr_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  wr_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(wr_ratings)
 ```
 
 ```{r echo=FALSE}

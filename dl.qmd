@@ -75,15 +75,7 @@ dl_ratings <- get_dl_ratings(dl_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  dl_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(dl_ratings)
 ```
 
 ```{r echo=FALSE}

@@ -67,15 +67,7 @@ iol_ratings <- get_iol_ratings(iol_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  iol_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(iol_ratings)
 ```
 
 ```{r echo=FALSE}

@@ -69,15 +69,7 @@ lb_ratings <- get_lb_ratings(lb_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  lb_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(lb_ratings)
 ```
 
 ```{r echo=FALSE}

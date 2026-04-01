@@ -80,15 +80,7 @@ qb_ratings <- get_qb_ratings(qb_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  qb_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(qb_ratings)
 ```
 
 ```{r echo=FALSE}

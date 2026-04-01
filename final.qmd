@@ -25,7 +25,9 @@ dl <- read.csv("data/rankings/dl.csv")
 ## Combine Rankings
 ```{r}
 final_rankings <- bind_rows(qb, rb, wr, te, ot, iol, lb, cb, s, ed, dl) %>%
-  arrange(-total)
+  arrange(-total) %>%
+  mutate(rank_aft = row_number()) %>%
+  mutate(rank_diff = rank - rank_aft)
 ```
 
 ## Display Final Rankings

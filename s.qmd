@@ -67,15 +67,7 @@ s_ratings <- get_s_ratings(s_values) %>%
 
 ## Display Ratings
 ```{r}
-DT::datatable(
-  s_ratings,
-  options = list(
-    scrollX = TRUE,
-    autoWidth = TRUE
-  ),
-  class = "compact stripe hover",
-  fillContainer = FALSE
-)
+datatable(s_ratings)
 ```
 
 ```{r echo=FALSE}
